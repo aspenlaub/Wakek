@@ -1,0 +1,172 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{1B18E81C-9CC5-4122-A6AF-3E44449644E1}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Aspenlaub.Net.GitHub.CSharp.Wakek</RootNamespace>
+    <AssemblyName>Aspenlaub.Net.GitHub.CSharp.Wakek</AssemblyName>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <WarningLevel>4</WarningLevel>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\WakekBin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <IntermediateOutputPath>..\temp\obj\Debug\</IntermediateOutputPath>
+    <GenerateBuildInfoConfigFile>false</GenerateBuildInfoConfigFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\WakekBin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <IntermediateOutputPath>..\temp\obj\Release\</IntermediateOutputPath>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <GenerateBuildInfoConfigFile>false</GenerateBuildInfoConfigFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Aspenlaub.Net.GitHub.CSharp.Pegh, Version=1.0.6707.27731, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\Aspenlaub.Net.GitHub.CSharp.Vishizhukel.1.0.6708.13285\lib\net46\Aspenlaub.Net.GitHub.CSharp.Pegh.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Aspenlaub.Net.GitHub.CSharp.Pegh.Components, Version=1.0.6707.27731, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\Aspenlaub.Net.GitHub.CSharp.Vishizhukel.1.0.6708.13285\lib\net46\Aspenlaub.Net.GitHub.CSharp.Pegh.Components.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Aspenlaub.Net.GitHub.CSharp.Pegh.Entities, Version=1.0.6707.27731, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\Aspenlaub.Net.GitHub.CSharp.Vishizhukel.1.0.6708.13285\lib\net46\Aspenlaub.Net.GitHub.CSharp.Pegh.Entities.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Aspenlaub.Net.GitHub.CSharp.Pegh.GUI, Version=1.0.6707.27732, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\Aspenlaub.Net.GitHub.CSharp.Vishizhukel.1.0.6708.13285\lib\net46\Aspenlaub.Net.GitHub.CSharp.Pegh.GUI.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces, Version=1.0.6707.27731, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\Aspenlaub.Net.GitHub.CSharp.Vishizhukel.1.0.6708.13285\lib\net46\Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Aspenlaub.Net.GitHub.CSharp.Pegh.SampleEntities, Version=1.0.6707.27731, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\Aspenlaub.Net.GitHub.CSharp.Vishizhukel.1.0.6708.13285\lib\net46\Aspenlaub.Net.GitHub.CSharp.Pegh.SampleEntities.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Aspenlaub.Net.GitHub.CSharp.Vishizhukel, Version=1.0.6708.13285, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\Aspenlaub.Net.GitHub.CSharp.Vishizhukel.1.0.6708.13285\lib\net46\Aspenlaub.Net.GitHub.CSharp.Vishizhukel.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Core, Version=1.0.6708.13285, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\Aspenlaub.Net.GitHub.CSharp.Vishizhukel.1.0.6708.13285\lib\net46\Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Entities, Version=1.0.6708.13285, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\Aspenlaub.Net.GitHub.CSharp.Vishizhukel.1.0.6708.13285\lib\net46\Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Entities.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Aspenlaub.Net.GitHub.CSharp.Vishizhukel.GUI, Version=1.0.6708.13285, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\Aspenlaub.Net.GitHub.CSharp.Vishizhukel.1.0.6708.13285\lib\net46\Aspenlaub.Net.GitHub.CSharp.Vishizhukel.GUI.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Interfaces, Version=1.0.6708.13285, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\Aspenlaub.Net.GitHub.CSharp.Vishizhukel.1.0.6708.13285\lib\net46\Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Interfaces.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Interfaces.Basic, Version=1.0.6708.13285, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\Aspenlaub.Net.GitHub.CSharp.Vishizhukel.1.0.6708.13285\lib\net46\Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Interfaces.Basic.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Aspenlaub.Net.GitHub.CSharp.Vishizhukel.IO, Version=1.0.6708.13285, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\Aspenlaub.Net.GitHub.CSharp.Vishizhukel.1.0.6708.13285\lib\net46\Aspenlaub.Net.GitHub.CSharp.Vishizhukel.IO.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="DotNetZip, Version=1.11.0.0, Culture=neutral, PublicKeyToken=6583c7c814667745, processorArchitecture=MSIL">
+      <HintPath>packages\DotNetZip.1.11.0\lib\net20\DotNetZip.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Management.Automation, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>packages\System.Management.Automation_PowerShell_3.0.6.3.9600.17400\lib\net40\System.Management.Automation.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Xml" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xaml">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="WindowsBase" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <Page Include="WakekWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Compile Include="App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="WakekWindow.xaml.cs">
+      <DependentUpon>WakekWindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <AppDesigner Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
