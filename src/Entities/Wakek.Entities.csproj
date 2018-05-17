@@ -93,10 +93,12 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Management.Automation, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Management.Automation_PowerShell_3.0.6.3.9600.17400\lib\net40\System.Management.Automation.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -107,6 +109,8 @@
   <ItemGroup>
     <Compile Include="BenchmarkDefinition.cs" />
     <Compile Include="BenchmarkDefinitions.cs" />
+    <Compile Include="BenchmarkExecution.cs" />
+    <Compile Include="BenchmarkExecutionState.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SecretBenchmarkDefinitions.cs" />
   </ItemGroup>

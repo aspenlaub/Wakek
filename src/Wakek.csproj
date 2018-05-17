@@ -128,6 +128,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="ViewSources.cs" />
     <Compile Include="WakekWindow.xaml.cs">
       <DependentUpon>WakekWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -160,6 +161,20 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="Application\Wakek.Application.csproj">
+      <Project>{60A6EEAE-C66A-4E39-9590-63233367AE3D}</Project>
+      <Name>Wakek.Application</Name>
+    </ProjectReference>
+    <ProjectReference Include="Entities\Wakek.Entities.csproj">
+      <Project>{813922f8-36f5-4cd0-8384-58478bf5a869}</Project>
+      <Name>Wakek.Entities</Name>
+    </ProjectReference>
+    <ProjectReference Include="Interfaces\Wakek.Interfaces.csproj">
+      <Project>{d23e3d46-e370-403b-80c2-0c58b746a9b7}</Project>
+      <Name>Wakek.Interfaces</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

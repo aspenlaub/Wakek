@@ -3,9 +3,61 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:entities="clr-namespace:Aspenlaub.Net.GitHub.CSharp.Wakek.Entities;assembly=Aspenlaub.Net.GitHub.CSharp.Wakek.Entities"
+        xmlns:vishientities="clr-namespace:Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Entities.Application;assembly=Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Entities"
         mc:Ignorable="d"
-        Title="Wakek" Height="350" Width="525">
-    <Grid>
-        
-    </Grid>
+        Title="Wakek" 
+        Width="1200" MinWidth="1200"
+        Loaded="WakekWindow_OnLoaded">
+    <Window.Resources>
+        <CollectionViewSource x:Key="BenchmarkDefinitionViewSource" d:DesignSource="{d:DesignInstance {x:Type entities:BenchmarkDefinition}, CreateList=True}"/>
+        <CollectionViewSource x:Key="BenchmarkExecutionStateViewSource" d:DesignSource="{d:DesignInstance {x:Type entities:BenchmarkExecutionState}, CreateList=True}"/>
+        <CollectionViewSource x:Key="LogViewSource" d:DesignSource="{d:DesignInstance {x:Type vishientities:LogEntry}, CreateList=True}" />
+        <Style x:Key="CellLeftAlign">
+            <Setter Property="Control.HorizontalAlignment" Value="Left" />
+            <Setter Property="Control.VerticalAlignment" Value="Center" />
+            <Setter Property="Control.Margin" Value="5,0,0,0" />
+        </Style>
+        <Style x:Key="CellRightAlign">
+            <Setter Property="Control.HorizontalAlignment" Value="Right" />
+            <Setter Property="Control.VerticalAlignment" Value="Center" />
+            <Setter Property="Control.Margin" Value="0,0,5,0" />
+        </Style>
+    </Window.Resources>
+    <TabControl>
+        <TabItem x:Name="MainTab" Header="MAIN" Padding="120,10,120,10">
+            <Grid x:Name="MainTabSheet">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.Row="0" Height="25">
+                    <Label Margin="5,0,50,0" Width="95">Benchmark</Label>
+                    <ComboBox 
+                        Width="450" 
+                        Name="SelectedBenchmarkDefinition" 
+                        ItemsSource="{Binding Source={StaticResource BenchmarkDefinitionViewSource}}"
+                        DisplayMemberPath="Description"/>
+                </StackPanel>
+                <Button x:Name="Execute" Height="25" Width="100" Padding="0" Margin="10,10,0,10" Background="Transparent" ToolTip="Execute benchmark" Grid.Row="0" Grid.Column="1" Click="Execute_OnClick">
+                    _Execute
+                </Button>
+
+            </Grid>
+        </TabItem>
+        <TabItem x:Name="LogTab" Header="LOG" Padding="120,10,120,10">
+            <DataGrid x:Name="LogDataGrid" AutoGenerateColumns="False" EnableRowVirtualization="True" ItemsSource="{Binding Source={StaticResource LogViewSource}}" RowDetailsVisibilityMode="VisibleWhenSelected">
+                <DataGrid.Columns>
+                    <DataGridTextColumn x:Name="CreatedAtColumn" Binding="{Binding CreatedAt, StringFormat='{}{0:hh:mm:ss}'}" Header="Time" Width="10*" ElementStyle="{StaticResource CellLeftAlign}"/>
+                    <DataGridTextColumn x:Name="LogEntryClassColumn" Binding="{Binding Class}" Header="Class" Width="10*" ElementStyle="{StaticResource CellLeftAlign}"/>
+                    <DataGridTextColumn x:Name="MessageColumn" Binding="{Binding Message}" Header="Message" Width="60*" ElementStyle="{StaticResource CellLeftAlign}"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </TabItem>
+    </TabControl>
 </Window>
