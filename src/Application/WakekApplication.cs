@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
@@ -7,11 +6,13 @@ using Aspenlaub.Net.GitHub.CSharp.Wakek.Entities;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Entities;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces;
 using Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Application;
+using Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Entities.Application;
 using Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Interfaces.Application;
+using Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Interfaces.Basic.Application;
 using Aspenlaub.Net.GitHub.CSharp.Wakek.Interfaces;
 
 namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
-    public class WakekApplication : IExecute {
+    public class WakekApplication : IExecuteCommandContext {
         protected IComponentProvider ComponentProvider;
         protected IApplicationCommandController Controller;
         protected IApplicationCommandExecutionContext Context;
@@ -19,7 +20,6 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
         public IApplicationLog Log { get; }
 
         public BenchmarkDefinitions BenchmarkDefinitions { get; }
-        public ObservableCollection<BenchmarkDefinition> ObservableBenchmarkDefinitions { get; }
         public BenchmarkDefinition SelectedBenchmarkDefinition { get; }
         public ObservableCollection<IBenchmarkExecution> BenchmarkExecutions { get; }
         public ObservableCollection<IBenchmarkExecutionState> BenchmarkExecutionStates { get; }
@@ -40,7 +40,6 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
 
             SelectedBenchmarkDefinition = BenchmarkDefinitions[0];
 
-            ObservableBenchmarkDefinitions = new ObservableCollection<BenchmarkDefinition>(BenchmarkDefinitions);
             BenchmarkExecutions = new ObservableCollection<IBenchmarkExecution>();
             BenchmarkExecutionStates = new ObservableCollection<IBenchmarkExecutionState>();
 
@@ -51,8 +50,25 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
             return BenchmarkExecutionStates.Any(s => !s.Finished);
         }
 
-        public void Execute() {
-            throw new NotImplementedException();
+        public void ApplicationFeedbackHandler(IFeedbackToApplication feedback, out bool handled) {
+            handled = true;
+            switch (feedback.Type) {
+                case FeedbackType.LogInformation: {
+                    Log.Add(new LogEntry { Message = feedback.Message, CreatedAt = feedback.CreatedAt, SequenceNumber = feedback.SequenceNumber });
+                } break;
+                case FeedbackType.LogWarning: {
+                    Log.Add(new LogEntry { Class = LogEntryClass.Warning, Message = feedback.Message, CreatedAt = feedback.CreatedAt, SequenceNumber = feedback.SequenceNumber });
+                } break;
+                case FeedbackType.LogError: {
+                    Log.Add(new LogEntry { Class = LogEntryClass.Error, Message = feedback.Message, CreatedAt = feedback.CreatedAt, SequenceNumber = feedback.SequenceNumber });
+                } break;
+                case FeedbackType.CommandIsDisabled: {
+                    Log.Add(new LogEntry { Class = LogEntryClass.Error, Message = "Attempt to run disabled command " + feedback.CommandType, CreatedAt = feedback.CreatedAt, SequenceNumber = feedback.SequenceNumber });
+                } break;
+                default: {
+                    handled = false;
+                } break;
+            }
         }
     }
 }

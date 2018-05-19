@@ -1,6 +1,5 @@
 ﻿namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Interfaces {
-    public interface IExecute {
+    public interface IExecuteCommandContext {
         bool IsExecuting();
-        void Execute();
     }
 }
