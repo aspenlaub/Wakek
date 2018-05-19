@@ -24,12 +24,15 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
         public ObservableCollection<IBenchmarkExecution> BenchmarkExecutions { get; }
         public ObservableCollection<IBenchmarkExecutionState> BenchmarkExecutionStates { get; }
 
+        protected int NextSequenceNumber;
+
         public WakekApplication(IComponentProvider componentProvider, IApplicationCommandController controller, IApplicationCommandExecutionContext context, SynchronizationContext uiSynchronizationContext) {
             ComponentProvider = componentProvider;
             Controller = controller;
             Context = context;
             UiSynchronizationContext = uiSynchronizationContext;
             Log = new ApplicationLog();
+            NextSequenceNumber = 1;
 
             var secret = new SecretBenchmarkDefinitions();
             var errorsAndInfos = new ErrorsAndInfos();
@@ -53,6 +56,20 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
         public void ApplicationFeedbackHandler(IFeedbackToApplication feedback, out bool handled) {
             handled = true;
             switch (feedback.Type) {
+                case FeedbackType.ImportantMessage: {
+                    if (!feedback.Message.Contains('<' + nameof(BenchmarkExecution) + " xmlns")) { return; }
+
+                    var benchmarkExecution = ComponentProvider.XmlDeserializer.Deserialize<BenchmarkExecution>(feedback.Message);
+                    for (var i = 0; i < BenchmarkExecutions.Count; i ++) {
+                        if (BenchmarkExecutions[i].Guid != benchmarkExecution.Guid) { continue; }
+
+                        BenchmarkExecutions[i] = benchmarkExecution;
+                        return;
+                    }
+
+                    BenchmarkExecutions.Add(benchmarkExecution);
+                    return;
+                }
                 case FeedbackType.LogInformation: {
                     Log.Add(new LogEntry { Message = feedback.Message, CreatedAt = feedback.CreatedAt, SequenceNumber = feedback.SequenceNumber });
                 } break;
@@ -69,6 +86,16 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
                     handled = false;
                 } break;
             }
+        }
+
+        public int NewSequenceNumber() {
+            if (SynchronizationContext.Current == UiSynchronizationContext) {
+                return NextSequenceNumber++;
+            }
+
+            var nextSequenceNumber = -1;
+            UiSynchronizationContext.Send(x => { nextSequenceNumber = NewSequenceNumber(); }, null);
+            return nextSequenceNumber;
         }
     }
 }

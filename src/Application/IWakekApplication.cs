@@ -7,7 +7,6 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
     public interface IWakekApplication : IExecuteCommandContext {
         IApplicationLog Log { get; }
         BenchmarkDefinitions BenchmarkDefinitions { get; }
-        IBenchmarkDefinition SelectedBenchmarkDefinition { get; }
         ObservableCollection<IBenchmarkExecution> BenchmarkExecutions { get; }
         ObservableCollection<IBenchmarkExecutionState> BenchmarkExecutionStates { get; }
         void ApplicationFeedbackHandler(IFeedbackToApplication feedback, out bool handled);

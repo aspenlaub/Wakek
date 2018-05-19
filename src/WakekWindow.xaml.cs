@@ -8,7 +8,6 @@ using Aspenlaub.Net.GitHub.CSharp.Pegh.Components;
 using Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Application;
 using Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Interfaces.Application;
 using Aspenlaub.Net.GitHub.CSharp.Wakek.Application;
-using Aspenlaub.Net.GitHub.CSharp.Wakek.Entities;
 
 #pragma warning disable 4014
 
