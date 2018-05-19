@@ -127,22 +127,34 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework" />
+        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework">
+          <Private>False</Private>
+        </Reference>
       </ItemGroup>
     </Otherwise>
   </Choose>
   <ItemGroup>
     <Compile Include="BenchmarkDefinitionTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WakekTestApplication.cs" />
+    <Compile Include="WakekTestApplicationTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Application\Wakek.Application.csproj">
+      <Project>{60A6EEAE-C66A-4E39-9590-63233367AE3D}</Project>
+      <Name>Wakek.Application</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Entities\Wakek.Entities.csproj">
       <Project>{813922F8-36F5-4CD0-8384-58478BF5A869}</Project>
       <Name>Wakek.Entities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Interfaces\Wakek.Interfaces.csproj">
+      <Project>{D23E3D46-E370-403B-80C2-0C58B746A9B7}</Project>
+      <Name>Wakek.Interfaces</Name>
     </ProjectReference>
   </ItemGroup>
   <Choose>

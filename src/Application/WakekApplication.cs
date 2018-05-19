@@ -12,7 +12,7 @@ using Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Interfaces.Basic.Application;
 using Aspenlaub.Net.GitHub.CSharp.Wakek.Interfaces;
 
 namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
-    public class WakekApplication : IExecuteCommandContext {
+    public class WakekApplication : IWakekApplication {
         protected IComponentProvider ComponentProvider;
         protected IApplicationCommandController Controller;
         protected IApplicationCommandExecutionContext Context;
@@ -20,7 +20,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
         public IApplicationLog Log { get; }
 
         public BenchmarkDefinitions BenchmarkDefinitions { get; }
-        public BenchmarkDefinition SelectedBenchmarkDefinition { get; }
+        public IBenchmarkDefinition SelectedBenchmarkDefinition { get; }
         public ObservableCollection<IBenchmarkExecution> BenchmarkExecutions { get; }
         public ObservableCollection<IBenchmarkExecutionState> BenchmarkExecutionStates { get; }
 
