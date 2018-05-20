@@ -113,7 +113,10 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Components\SequenceNumberGenerator.cs" />
     <Compile Include="WakekApplication.cs" />
+    <Compile Include="Components\WakekComponentProvider.cs" />
+    <Compile Include="Components\XmlSerializedObjectReader.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

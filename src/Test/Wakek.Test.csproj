@@ -136,8 +136,10 @@
   <ItemGroup>
     <Compile Include="BenchmarkDefinitionTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SequenceNumberGeneratorTest.cs" />
     <Compile Include="WakekTestApplication.cs" />
     <Compile Include="WakekTestApplicationTest.cs" />
+    <Compile Include="XmlSerializedObjectReaderTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

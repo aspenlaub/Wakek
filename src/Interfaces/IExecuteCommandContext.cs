@@ -1,7 +1,9 @@
-﻿namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Interfaces {
+﻿using Aspenlaub.Net.GitHub.CSharp.Wakek.Interfaces.Components;
+
+namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Interfaces {
     public interface IExecuteCommandContext {
         bool IsExecuting();
-        int NewSequenceNumber();
+        IWakekComponentProvider WakekComponentProvider { get; }
         IBenchmarkDefinition SelectedBenchmarkDefinition { get; }
     }
 }

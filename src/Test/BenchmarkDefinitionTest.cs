@@ -9,9 +9,9 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Test {
         [TestMethod]
         public void HaveBenchmarkDefinitionsSecret() {
             var secret = new SecretBenchmarkDefinitions();
-            var componentProvider = new ComponentProvider();
+            var peghComponentProvider = new ComponentProvider();
             var errorsAndInfos = new ErrorsAndInfos();
-            componentProvider.SecretRepository.Get(secret, errorsAndInfos);
+            peghComponentProvider.SecretRepository.Get(secret, errorsAndInfos);
             Assert.IsFalse(errorsAndInfos.AnyErrors(), string.Join("\r\n", errorsAndInfos.Errors));
         }
     }

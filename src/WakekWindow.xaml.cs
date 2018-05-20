@@ -8,6 +8,7 @@ using Aspenlaub.Net.GitHub.CSharp.Pegh.Components;
 using Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Application;
 using Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Interfaces.Application;
 using Aspenlaub.Net.GitHub.CSharp.Wakek.Application;
+using Aspenlaub.Net.GitHub.CSharp.Wakek.Application.Components;
 
 #pragma warning disable 4014
 
@@ -22,7 +23,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek {
 
         public WakekWindow() {
             Controller = new ApplicationCommandController(ApplicationFeedbackHandler);
-            WakekApplication = new WakekApplication(new ComponentProvider(), Controller, Controller, SynchronizationContext.Current);
+            WakekApplication = new WakekApplication(new WakekComponentProvider(new ComponentProvider()), Controller, Controller, SynchronizationContext.Current);
 
             InitializeComponent();
         }

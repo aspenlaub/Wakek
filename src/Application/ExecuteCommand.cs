@@ -26,7 +26,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
         public Task Execute(IApplicationCommandExecutionContext context) {
             return Task.Run(() => {
                 var benchmarkExecution = new BenchmarkExecution {
-                    SequenceNumber = ContextOwner.NewSequenceNumber(),
+                    SequenceNumber = ContextOwner.WakekComponentProvider.SequenceNumberGenerator.NewSequenceNumber(nameof(BenchmarkExecution)),
                     Guid = Guid.NewGuid().ToString(),
                     BenchmarkDefinitionGuid = ContextOwner.SelectedBenchmarkDefinition.Guid,
                     ThreadNumber = 1

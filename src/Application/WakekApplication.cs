@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
@@ -10,10 +11,11 @@ using Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Entities.Application;
 using Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Interfaces.Application;
 using Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Interfaces.Basic.Application;
 using Aspenlaub.Net.GitHub.CSharp.Wakek.Interfaces;
+using Aspenlaub.Net.GitHub.CSharp.Wakek.Interfaces.Components;
 
 namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
     public class WakekApplication : IWakekApplication {
-        protected IComponentProvider ComponentProvider;
+        public IWakekComponentProvider WakekComponentProvider { get; }
         protected IApplicationCommandController Controller;
         protected IApplicationCommandExecutionContext Context;
         protected SynchronizationContext UiSynchronizationContext;
@@ -26,8 +28,8 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
 
         protected int NextSequenceNumber;
 
-        public WakekApplication(IComponentProvider componentProvider, IApplicationCommandController controller, IApplicationCommandExecutionContext context, SynchronizationContext uiSynchronizationContext) {
-            ComponentProvider = componentProvider;
+        public WakekApplication(IWakekComponentProvider wakekComponentProvider, IApplicationCommandController controller, IApplicationCommandExecutionContext context, SynchronizationContext uiSynchronizationContext) {
+            WakekComponentProvider = wakekComponentProvider;
             Controller = controller;
             Context = context;
             UiSynchronizationContext = uiSynchronizationContext;
@@ -36,7 +38,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
 
             var secret = new SecretBenchmarkDefinitions();
             var errorsAndInfos = new ErrorsAndInfos();
-            BenchmarkDefinitions = ComponentProvider.SecretRepository.Get(secret, errorsAndInfos);
+            BenchmarkDefinitions = WakekComponentProvider.PeghComponentProvider.SecretRepository.Get(secret, errorsAndInfos);
             if (errorsAndInfos.AnyErrors()) {
                 throw new Exception(string.Join("\r\n", errorsAndInfos.Errors));
             }
@@ -57,19 +59,18 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
             handled = true;
             switch (feedback.Type) {
                 case FeedbackType.ImportantMessage: {
-                    if (!feedback.Message.Contains('<' + nameof(BenchmarkExecution) + " xmlns")) { return; }
+                    Type feedbackSerializedObjectType;
+                    WakekComponentProvider.XmlSerializedObjectReader.IdentifyType(feedback.Message, out handled, out feedbackSerializedObjectType);
+                    if (!handled) { return; }
 
-                    var benchmarkExecution = ComponentProvider.XmlDeserializer.Deserialize<BenchmarkExecution>(feedback.Message);
-                    for (var i = 0; i < BenchmarkExecutions.Count; i ++) {
-                        if (BenchmarkExecutions[i].Guid != benchmarkExecution.Guid) { continue; }
-
-                        BenchmarkExecutions[i] = benchmarkExecution;
-                        return;
+                    if (feedbackSerializedObjectType == typeof(BenchmarkExecution)) {
+                        var benchmarkExecution = WakekComponentProvider.XmlSerializedObjectReader.Read<BenchmarkExecution>(feedback.Message);
+                        ReplaceOrAddToCollection(benchmarkExecution, BenchmarkExecutions);
+                    } else {
+                        handled = false;
                     }
-
-                    BenchmarkExecutions.Add(benchmarkExecution);
-                    return;
-                }
+                // ReSharper disable once SeparateControlTransferStatement
+                } break;
                 case FeedbackType.LogInformation: {
                     Log.Add(new LogEntry { Message = feedback.Message, CreatedAt = feedback.CreatedAt, SequenceNumber = feedback.SequenceNumber });
                 } break;
@@ -86,6 +87,19 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
                     handled = false;
                 } break;
             }
+        }
+
+        private static void ReplaceOrAddToCollection<T>(T benchmarkExecution, IList<T> collection) where T : IGuid {
+            for (var i = 0; i < collection.Count; i++) {
+                if (collection[i].Guid != benchmarkExecution.Guid) {
+                    continue;
+                }
+
+                collection[i] = benchmarkExecution;
+                return;
+            }
+
+            collection.Add(benchmarkExecution);
         }
 
         public int NewSequenceNumber() {

@@ -110,6 +110,9 @@
     <Compile Include="IBenchmarkExecution.cs" />
     <Compile Include="IBenchmarkExecutionState.cs" />
     <Compile Include="IExecuteCommandContext.cs" />
+    <Compile Include="Components\IXmlSerializedObjectReader.cs" />
+    <Compile Include="Components\ISequenceNumberGenerator.cs" />
+    <Compile Include="Components\IWakekComponentProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
