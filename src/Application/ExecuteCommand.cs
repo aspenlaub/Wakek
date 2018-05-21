@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq;
-using System.Net;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Components;
@@ -29,15 +29,20 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
             return !ContextOwner.IsExecuting() && !string.IsNullOrEmpty(ContextOwner.SelectedBenchmarkDefinition?.Guid);
         }
 
-        public Task Execute(IApplicationCommandExecutionContext context) {
+        public async Task Execute(IApplicationCommandExecutionContext context) {
             var executionStart = DateTime.Now;
             var benchmarkExecution = WakekComponentProvider.BenchmarkExecutionFactory.CreateBenchmarkExecution(ContextOwner.SelectedBenchmarkDefinition) as BenchmarkExecution;
             context.Report(new FeedbackToApplication { Type = FeedbackType.ImportantMessage, Message = XmlSerializer.Serialize(benchmarkExecution) });
-            var tasks = Enumerable.Range(1, ContextOwner.SelectedBenchmarkDefinition.NumberOfCallsInParallel).Select(t => Task.Run(() => ExecuteForThread(context, benchmarkExecution, t, executionStart)));
-            return Task.WhenAll(tasks);
+            var client = new HttpClient();
+            var url = ContextOwner.SelectedBenchmarkDefinition.Url;
+            if (!string.IsNullOrEmpty(url)) {
+                client.BaseAddress = new Uri(url);
+            }
+            var tasks = Enumerable.Range(1, ContextOwner.SelectedBenchmarkDefinition.NumberOfCallsInParallel).Select(t => ExecuteForThread(context, benchmarkExecution, t, executionStart, client));
+            await Task.WhenAll(tasks);
         }
 
-        private void ExecuteForThread(IApplicationCommandExecutionContext context, IBenchmarkExecution benchmarkExecution, int threadNumber, DateTime executionStart) {
+        private async Task ExecuteForThread(IApplicationCommandExecutionContext context, IBenchmarkExecution benchmarkExecution, int threadNumber, DateTime executionStart, HttpClient client) {
             var benchmarkExecutionState = WakekComponentProvider.BenchmarkExecutionFactory.CreateBenchmarkExecutionState(benchmarkExecution, threadNumber) as BenchmarkExecutionState;
             if (benchmarkExecutionState == null) { throw new NullReferenceException(); }
 
@@ -50,22 +55,11 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
                 if (string.IsNullOrEmpty(ContextOwner.SelectedBenchmarkDefinition.Url)) {
                     Thread.Sleep(TimeSpan.FromMilliseconds(500));
                 } else {
-                    var request = (HttpWebRequest)WebRequest.Create(ContextOwner.SelectedBenchmarkDefinition.Url);
-                    request.Method = WebRequestMethods.Http.Get;
-                    request.UserAgent = GetType().Namespace;
-                    request.Timeout = ContextOwner.SelectedBenchmarkDefinition.ExecutionTimeInSeconds * 1000;
-                    ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
                     try {
-                        using (var response = (HttpWebResponse) request.GetResponse()) {
-                            var responseStream = response.GetResponseStream();
-                            if (responseStream == null) {
-                                benchmarkExecutionState.Failures++;
-                            } else {
-                                benchmarkExecutionState.Successes++;
-                            }
-                        }
+                        await client.GetStringAsync("?g=" + Guid.NewGuid());
+                        benchmarkExecutionState.Successes ++;
                     } catch {
-                        benchmarkExecutionState.Failures++;
+                        benchmarkExecutionState.Failures ++;
                     }
                 }
 
