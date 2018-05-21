@@ -11,19 +11,26 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application.Components {
             WakekComponentProvider = wakekComponentProvider;
         }
 
-        public IBenchmarkExecution CreateBenchmarkExecution(IBenchmarkDefinition benchmarkDefinition, int threadNumber) {
+        public IBenchmarkExecution CreateBenchmarkExecution(IBenchmarkDefinition benchmarkDefinition) {
+            if (string.IsNullOrEmpty(benchmarkDefinition.Guid)) {
+                throw new NullReferenceException("benchmarkDefinition.Guid");
+            }
+
             return new BenchmarkExecution {
                 SequenceNumber = WakekComponentProvider.SequenceNumberGenerator.NewSequenceNumber(nameof(BenchmarkExecution)),
                 Guid = Guid.NewGuid().ToString(),
                 BenchmarkDefinitionGuid = benchmarkDefinition.Guid,
-                ThreadNumber = threadNumber
             };
         }
 
-        public IBenchmarkExecutionState CreateBenchmarkExecutionState(IBenchmarkExecution benchmarkExecution) {
+        public IBenchmarkExecutionState CreateBenchmarkExecutionState(IBenchmarkExecution benchmarkExecution, int threadNumber) {
+            if (string.IsNullOrEmpty(benchmarkExecution.Guid)) {
+                throw new NullReferenceException("benchmarkExecution.Guid");
+            }
+
             return new BenchmarkExecutionState {
                 SequenceNumber = WakekComponentProvider.SequenceNumberGenerator.NewSequenceNumber(nameof(BenchmarkExecutionState)),
-                BenchmarkExecutionGuid = benchmarkExecution.Guid,
+                BenchmarkExecutionGuid = benchmarkExecution.Guid, ThreadNumber = threadNumber,
                 ExecutingForHowManySeconds = 0,
                 Failures = 0, Successes = 0,
                 RemoteExecutingForHowManySeconds = 0, RemoteRequiringForHowManySeconds = 0,

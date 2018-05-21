@@ -19,7 +19,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Test {
             sut.IdentifyType("<?xml", out success, out t);
             Assert.IsFalse(success);
             var objects = new object[] {
-                new BenchmarkExecution { SequenceNumber = 24, BenchmarkDefinitionGuid = Guid.NewGuid().ToString(), ThreadNumber = 7 },
+                new BenchmarkExecution { SequenceNumber = 24, BenchmarkDefinitionGuid = Guid.NewGuid().ToString() },
                 new BenchmarkDefinition { BenchmarkExecutionType = BenchmarkExecutionType.CsNative, Description = "Not a benchmark", ExecutionTimeInSeconds = 24, Guid = Guid.NewGuid().ToString(), NumberOfCallsInParallel = 7, Url = "https://www.aspenlaub.net"}
             };
             var serializedObjects = new[] {

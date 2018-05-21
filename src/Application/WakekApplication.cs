@@ -23,9 +23,11 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
         public IApplicationLog Log { get; }
 
         public BenchmarkDefinitions BenchmarkDefinitions { get; }
-        public IBenchmarkDefinition SelectedBenchmarkDefinition { get; set; }
+        public IBenchmarkDefinition SelectedBenchmarkDefinition { get; private set; }
         public ObservableCollection<IBenchmarkExecution> BenchmarkExecutions { get; }
         public ObservableCollection<IBenchmarkExecutionState> BenchmarkExecutionStates { get; }
+        public ObservableCollection<IDisplayedBenchmarkExecutionState> DisplayedBenchmarkExecutionStates { get; }
+        protected static object LockObject = new object();
 
         protected int NextSequenceNumber;
 
@@ -44,14 +46,40 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
                 throw new Exception(string.Join("\r\n", errorsAndInfos.Errors));
             }
 
-            BenchmarkDefinitions.CollectionChanged += BenchmarkDefinitionsOnCollectionChanged;
-
             SelectedBenchmarkDefinition = BenchmarkDefinitions[0];
-
             BenchmarkExecutions = new ObservableCollection<IBenchmarkExecution>();
             BenchmarkExecutionStates = new ObservableCollection<IBenchmarkExecutionState>();
+            DisplayedBenchmarkExecutionStates = new ObservableCollection<IDisplayedBenchmarkExecutionState>();
+
+            BenchmarkDefinitions.CollectionChanged += BenchmarkDefinitionsOnCollectionChanged;
+            BenchmarkExecutionStates.CollectionChanged += BenchmarkExecutionStatesOnCollectionChanged;
 
             Controller.AddCommand(new ExecuteCommand(this), true);
+        }
+
+        private void BenchmarkExecutionStatesOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs notifyCollectionChangedEventArgs) {
+            // ReSharper disable once LoopCanBePartlyConvertedToQuery
+            foreach (var execution in BenchmarkExecutions) {
+                var definition = BenchmarkDefinitions.FirstOrDefault(d => d.Guid == execution.BenchmarkDefinitionGuid);
+                if (definition == null) { continue; }
+
+                var states = GetObservableCollectionSnapshot(s => s.BenchmarkExecutionGuid == execution.Guid, () => BenchmarkExecutionStates);
+                if (!states.Any()) { continue; }
+
+                var displayedState = new DisplayedBenchmarkExecutionState {
+                    BenchmarkDescription = definition.Description,
+                    ExecutingForHowManySeconds = states.Max(s => s.ExecutingForHowManySeconds),
+                    Failures = states.Sum(s => s.Failures),
+                    Finished = states.All(s => s.Finished),
+                    Guid = execution.Guid,
+                    RemoteExecutingForHowManySeconds = states.Sum(s => s.RemoteExecutingForHowManySeconds),
+                    RemoteRequiringForHowManySeconds = states.Sum(s => s.RemoteRequiringForHowManySeconds),
+                    SequenceNumber = states.Min(s => s.SequenceNumber),
+                    Successes = states.Sum(s => s.Successes)
+                };
+
+                ReplaceOrAddToCollection(displayedState, DisplayedBenchmarkExecutionStates);
+            }
         }
 
         private void BenchmarkDefinitionsOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs notifyCollectionChangedEventArgs) {
@@ -68,7 +96,9 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
         }
 
         public bool IsExecuting() {
-            return BenchmarkExecutionStates.Any(s => !s.Finished);
+            lock(LockObject) {
+                return BenchmarkExecutionStates.Any(s => !s.Finished);
+            }
         }
 
         public void ApplicationFeedbackHandler(IFeedbackToApplication feedback, out bool handled) {
@@ -109,18 +139,32 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
         }
 
         private static void ReplaceOrAddToCollection<T>(T item, IList<T> collection) where T : IGuid {
-            if (string.IsNullOrEmpty(item.Guid)) { return; }
-
-            for (var i = 0; i < collection.Count; i++) {
-                if (collection[i].Guid != item.Guid) {
-                    continue;
-                }
-
-                collection[i] = item;
-                return;
+            if (string.IsNullOrEmpty(item.Guid)) {
+                throw new NullReferenceException("item.Guid");
             }
 
-            collection.Add(item);
+            lock (LockObject) {
+                for (var i = 0; i < collection.Count; i++) {
+                    if (collection[i].Guid != item.Guid) {
+                        continue;
+                    }
+
+                    collection[i] = item;
+                    return;
+                }
+
+                collection.Add(item);
+            }
+        }
+
+        public void SelectBenchmarkDefinition(IBenchmarkDefinition benchmarkDefinition) {
+            SelectedBenchmarkDefinition = benchmarkDefinition;
+        }
+
+        public IList<T> GetObservableCollectionSnapshot<T>(Func<T, bool> criteria, Func<IList<T>> getObservableCollection) {
+            lock (LockObject) {
+                return new List<T>(getObservableCollection().Where(x => criteria(x)));
+            }
         }
     }
 }

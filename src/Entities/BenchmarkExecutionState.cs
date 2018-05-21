@@ -9,7 +9,10 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Entities {
         [XmlAttribute("guid")]
         public string BenchmarkExecutionGuid { get; set; }
 
-        public string Guid { get { return BenchmarkExecutionGuid; } }
+        [XmlAttribute("thread")]
+        public int ThreadNumber { get; set; }
+
+        public string Guid { get { return BenchmarkExecutionGuid + '_' + ThreadNumber; } }
 
         [XmlAttribute("secondsexecuting")]
         public int ExecutingForHowManySeconds { get; set; }

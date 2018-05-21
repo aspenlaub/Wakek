@@ -1,10 +1,9 @@
 ﻿using Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces;
 
 namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Interfaces {
-    public interface IBenchmarkExecutionState : IGuid {
+    public interface IDisplayedBenchmarkExecutionState : IGuid {
         int SequenceNumber { get; }
-        string BenchmarkExecutionGuid { get; }
-        int ThreadNumber { get; }
+        string BenchmarkDescription { get; set; }
         int ExecutingForHowManySeconds { get; }
         int RemoteExecutingForHowManySeconds { get; }
         int RemoteRequiringForHowManySeconds { get; }

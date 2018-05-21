@@ -4,6 +4,5 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Interfaces {
     public interface IBenchmarkExecution : IGuid {
         int SequenceNumber { get; }
         string BenchmarkDefinitionGuid { get; }
-        int ThreadNumber { get; }
     }
 }

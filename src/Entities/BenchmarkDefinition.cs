@@ -3,6 +3,10 @@ using Aspenlaub.Net.GitHub.CSharp.Wakek.Interfaces;
 
 namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Entities {
     public class BenchmarkDefinition : IBenchmarkDefinition {
+        public BenchmarkDefinition() {
+            Guid = System.Guid.NewGuid().ToString();
+        }
+
         [XmlAttribute("guid")]
         public string Guid { get; set; }
 

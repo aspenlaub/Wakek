@@ -4,11 +4,13 @@ using System.ComponentModel;
 using System.Threading;
 using System.Windows;
 using System.Windows.Data;
+using System.Windows.Input;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Components;
 using Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Application;
 using Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Interfaces.Application;
 using Aspenlaub.Net.GitHub.CSharp.Wakek.Application;
 using Aspenlaub.Net.GitHub.CSharp.Wakek.Application.Components;
+using Aspenlaub.Net.GitHub.CSharp.Wakek.Interfaces;
 
 #pragma warning disable 4014
 
@@ -48,9 +50,9 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek {
 
         // ReSharper disable once UnusedParameter.Local
         private void CommandExecutionCompletedHandler(IFeedbackToApplication feedback) {
-            // ReSharper disable once RedundantJumpStatement
             if (!Controller.IsMainThread()) { return; }
 
+            Cursor = Cursors.Arrow;
         }
 
         public void CommandsEnabledOrDisabledHandler() {
@@ -60,7 +62,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek {
         private void WakekWindow_OnLoaded(object sender, RoutedEventArgs e) {
             WakekViewSources = new ViewSources(this);
             SetViewSource(WakekViewSources.BenchmarkDefinitionViewSource, WakekApplication.BenchmarkDefinitions, "Description", ListSortDirection.Ascending);
-            SetViewSource(WakekViewSources.BenchmarkExecutionStateViewSource, WakekApplication.BenchmarkExecutionStates, "SequenceNumber", ListSortDirection.Ascending);
+            SetViewSource(WakekViewSources.BenchmarkExecutionStateViewSource, WakekApplication.DisplayedBenchmarkExecutionStates, "SequenceNumber", ListSortDirection.Ascending);
             SetViewSource(WakekViewSources.LogViewSource, WakekApplication.Log.LogEntries, "SequenceNumber", ListSortDirection.Ascending);
             CommandsEnabledOrDisabledHandler();
         }
@@ -70,8 +72,14 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek {
             source.SortDescriptions.Add(new SortDescription(sortProperty, sortDirection));
         }
 
-        private void Execute_OnClick(object sender, RoutedEventArgs e) {
-            Controller.Execute(typeof(ExecuteCommand));
+        private async void Execute_OnClick(object sender, RoutedEventArgs e) {
+            Cursor = Cursors.Wait;
+            await Controller.Execute(typeof(ExecuteCommand));
+        }
+
+        private void SelectedBenchmarkDefinition_OnDropDownClosed(object sender, EventArgs e) {
+            var item = SelectedBenchmarkDefinition.SelectedItem as IBenchmarkDefinition;
+            WakekApplication.SelectBenchmarkDefinition(item);
         }
     }
 }

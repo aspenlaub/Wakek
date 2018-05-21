@@ -110,6 +110,7 @@
     <Compile Include="IBenchmarkExecution.cs" />
     <Compile Include="IBenchmarkExecutionFactory.cs" />
     <Compile Include="IBenchmarkExecutionState.cs" />
+    <Compile Include="IDisplayedBenchmarkExecutionState.cs" />
     <Compile Include="IExecuteCommandContext.cs" />
     <Compile Include="Components\IXmlSerializedObjectReader.cs" />
     <Compile Include="Components\ISequenceNumberGenerator.cs" />

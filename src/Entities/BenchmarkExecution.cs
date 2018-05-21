@@ -11,8 +11,5 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Entities {
 
         [XmlAttribute("definition")]
         public string BenchmarkDefinitionGuid { get; set; }
-
-        [XmlAttribute("thread")]
-        public int ThreadNumber { get; set; }
     }
 }
