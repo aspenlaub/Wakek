@@ -105,6 +105,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Components\BenchmarkExecutionFactory.cs" />
     <Compile Include="ExecuteCommand.cs" />
     <Compile Include="IWakekApplication.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

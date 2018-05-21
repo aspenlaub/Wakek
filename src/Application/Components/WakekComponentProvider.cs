@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces;
+using Aspenlaub.Net.GitHub.CSharp.Wakek.Interfaces;
 using Aspenlaub.Net.GitHub.CSharp.Wakek.Interfaces.Components;
 
 namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application.Components {
@@ -28,6 +29,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application.Components {
             return (T)DefaultComponents[typeof(T)];
         }
 
+        public IBenchmarkExecutionFactory BenchmarkExecutionFactory { get { return DefaultComponent<IBenchmarkExecutionFactory, BenchmarkExecutionFactory>(() => new BenchmarkExecutionFactory(this)); } }
         public ISequenceNumberGenerator SequenceNumberGenerator { get { return DefaultComponent<ISequenceNumberGenerator, SequenceNumberGenerator>(); } }
         public IXmlSerializedObjectReader XmlSerializedObjectReader { get { return DefaultComponent<IXmlSerializedObjectReader, XmlSerializedObjectReader>(() => new XmlSerializedObjectReader(PeghComponentProvider)); } }
     }

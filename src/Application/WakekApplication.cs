@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Threading;
 using Aspenlaub.Net.GitHub.CSharp.Wakek.Entities;
@@ -22,7 +23,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
         public IApplicationLog Log { get; }
 
         public BenchmarkDefinitions BenchmarkDefinitions { get; }
-        public IBenchmarkDefinition SelectedBenchmarkDefinition { get; }
+        public IBenchmarkDefinition SelectedBenchmarkDefinition { get; set; }
         public ObservableCollection<IBenchmarkExecution> BenchmarkExecutions { get; }
         public ObservableCollection<IBenchmarkExecutionState> BenchmarkExecutionStates { get; }
 
@@ -43,12 +44,27 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
                 throw new Exception(string.Join("\r\n", errorsAndInfos.Errors));
             }
 
+            BenchmarkDefinitions.CollectionChanged += BenchmarkDefinitionsOnCollectionChanged;
+
             SelectedBenchmarkDefinition = BenchmarkDefinitions[0];
 
             BenchmarkExecutions = new ObservableCollection<IBenchmarkExecution>();
             BenchmarkExecutionStates = new ObservableCollection<IBenchmarkExecutionState>();
 
             Controller.AddCommand(new ExecuteCommand(this), true);
+        }
+
+        private void BenchmarkDefinitionsOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs notifyCollectionChangedEventArgs) {
+            if (SelectedBenchmarkDefinition == null) {
+                if (!BenchmarkDefinitions.Any()) { return; }
+
+                SelectedBenchmarkDefinition = BenchmarkDefinitions[0];
+                return;
+            }
+
+            if (BenchmarkDefinitions.Any(b => b.Guid == SelectedBenchmarkDefinition.Guid)) { return; }
+
+            SelectedBenchmarkDefinition = null;
         }
 
         public bool IsExecuting() {
@@ -66,6 +82,9 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
                     if (feedbackSerializedObjectType == typeof(BenchmarkExecution)) {
                         var benchmarkExecution = WakekComponentProvider.XmlSerializedObjectReader.Read<BenchmarkExecution>(feedback.Message);
                         ReplaceOrAddToCollection(benchmarkExecution, BenchmarkExecutions);
+                    } else if (feedbackSerializedObjectType == typeof(BenchmarkExecutionState)) {
+                        var benchmarkExecutionState = WakekComponentProvider.XmlSerializedObjectReader.Read<BenchmarkExecutionState>(feedback.Message);
+                        ReplaceOrAddToCollection(benchmarkExecutionState, BenchmarkExecutionStates);
                     } else {
                         handled = false;
                     }
@@ -89,27 +108,19 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
             }
         }
 
-        private static void ReplaceOrAddToCollection<T>(T benchmarkExecution, IList<T> collection) where T : IGuid {
+        private static void ReplaceOrAddToCollection<T>(T item, IList<T> collection) where T : IGuid {
+            if (string.IsNullOrEmpty(item.Guid)) { return; }
+
             for (var i = 0; i < collection.Count; i++) {
-                if (collection[i].Guid != benchmarkExecution.Guid) {
+                if (collection[i].Guid != item.Guid) {
                     continue;
                 }
 
-                collection[i] = benchmarkExecution;
+                collection[i] = item;
                 return;
             }
 
-            collection.Add(benchmarkExecution);
-        }
-
-        public int NewSequenceNumber() {
-            if (SynchronizationContext.Current == UiSynchronizationContext) {
-                return NextSequenceNumber++;
-            }
-
-            var nextSequenceNumber = -1;
-            UiSynchronizationContext.Send(x => { nextSequenceNumber = NewSequenceNumber(); }, null);
-            return nextSequenceNumber;
+            collection.Add(item);
         }
     }
 }

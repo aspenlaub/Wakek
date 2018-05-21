@@ -46,10 +46,11 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek {
             }
         }
 
+        // ReSharper disable once UnusedParameter.Local
         private void CommandExecutionCompletedHandler(IFeedbackToApplication feedback) {
+            // ReSharper disable once RedundantJumpStatement
             if (!Controller.IsMainThread()) { return; }
 
-            throw new NotImplementedException();
         }
 
         public void CommandsEnabledOrDisabledHandler() {
@@ -59,7 +60,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek {
         private void WakekWindow_OnLoaded(object sender, RoutedEventArgs e) {
             WakekViewSources = new ViewSources(this);
             SetViewSource(WakekViewSources.BenchmarkDefinitionViewSource, WakekApplication.BenchmarkDefinitions, "Description", ListSortDirection.Ascending);
-            SetViewSource(WakekViewSources.BenchmarkExecutionStateViewSource, WakekApplication.Log.LogEntries, "SequenceNumber", ListSortDirection.Ascending);
+            SetViewSource(WakekViewSources.BenchmarkExecutionStateViewSource, WakekApplication.BenchmarkExecutionStates, "SequenceNumber", ListSortDirection.Ascending);
             SetViewSource(WakekViewSources.LogViewSource, WakekApplication.Log.LogEntries, "SequenceNumber", ListSortDirection.Ascending);
             CommandsEnabledOrDisabledHandler();
         }

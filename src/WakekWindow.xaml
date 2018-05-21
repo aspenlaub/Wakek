@@ -47,7 +47,20 @@
                 <Button x:Name="Execute" Height="25" Width="100" Padding="0" Margin="10,10,0,10" Background="Transparent" ToolTip="Execute benchmark" Grid.Row="0" Grid.Column="1" Click="Execute_OnClick">
                     _Execute
                 </Button>
-
+                <DataGrid x:Name="AnotherLogDataGrid" AutoGenerateColumns="False" EnableRowVirtualization="True" 
+                          ItemsSource="{Binding Source={StaticResource BenchmarkExecutionStateViewSource}}" 
+                          RowDetailsVisibilityMode="VisibleWhenSelected"
+                          Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn x:Name="SequenceNumber" Binding="{Binding SequenceNumber}" Header="Sequence" Width="10*" ElementStyle="{StaticResource CellRightAlign}"/>
+                        <DataGridTextColumn x:Name="Benchmark" Binding="{Binding BenchmarkExecutionGuid}" Header="Benchmark" Width="60*" ElementStyle="{StaticResource CellLeftAlign}"/>
+                        <DataGridTextColumn x:Name="ExecutingForHowManySeconds" Binding="{Binding ExecutingForHowManySeconds}" Header="Executing (s)" Width="10*" ElementStyle="{StaticResource CellRightAlign}"/>
+                        <DataGridTextColumn x:Name="RemoteExecutingForHowManySeconds" Binding="{Binding RemoteExecutingForHowManySeconds}" Header="Remote Executing (s)" Width="10*" ElementStyle="{StaticResource CellRightAlign}"/>
+                        <DataGridTextColumn x:Name="RemoteRequiringForHowManySeconds" Binding="{Binding RemoteRequiringForHowManySeconds}" Header="Remote Requiring (s)" Width="10*" ElementStyle="{StaticResource CellRightAlign}"/>
+                        <DataGridTextColumn x:Name="Successes" Binding="{Binding Successes}" Header="Successes" Width="10*" ElementStyle="{StaticResource CellRightAlign}"/>
+                        <DataGridTextColumn x:Name="Failures" Binding="{Binding Failures}" Header="Failures" Width="10*" ElementStyle="{StaticResource CellRightAlign}"/>
+                    </DataGrid.Columns>
+                </DataGrid>
             </Grid>
         </TabItem>
         <TabItem x:Name="LogTab" Header="LOG" Padding="120,10,120,10">

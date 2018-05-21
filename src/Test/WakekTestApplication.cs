@@ -14,9 +14,13 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Test {
         protected readonly IWakekApplication WrappedWakekApplication;
         public readonly ApplicationCommandController ApplicationCommandController;
 
+        public const string TestBenchmarkGuid = "E87C2B16-8EBD-517F-A5DA-6F915FFD4E60";
+
         public WakekTestApplication() {
             ApplicationCommandController = new ApplicationCommandController(ApplicationFeedbackHandler);
             WrappedWakekApplication = new WakekApplication(new WakekComponentProvider(new ComponentProvider()), ApplicationCommandController, ApplicationCommandController, SynchronizationContext.Current);
+            WrappedWakekApplication.BenchmarkDefinitions.Clear();
+            WrappedWakekApplication.BenchmarkDefinitions.Add(new BenchmarkDefinition { BenchmarkExecutionType = BenchmarkExecutionType.CsNative, Description = "Wakek Test Benchmark", ExecutionTimeInSeconds = 2, Guid = TestBenchmarkGuid, NumberOfCallsInParallel = 1 });
         }
 
         public bool IsExecuting() { return WrappedWakekApplication.IsExecuting(); }

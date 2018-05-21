@@ -21,9 +21,8 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application.Components {
             try {
                 var document = new XmlDocument();
                 document.LoadXml(s);
-                if (document.DocumentElement == null) { return; }
 
-                var rootElementName = document.DocumentElement.Name;
+                var rootElementName = document.DocumentElement?.Name;
                 t = typeof(BenchmarkDefinition).Assembly.ExportedTypes.FirstOrDefault(x => x.Name == rootElementName);
                 success = t != null;
 

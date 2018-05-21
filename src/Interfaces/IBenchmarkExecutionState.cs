@@ -1,5 +1,7 @@
-﻿namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Interfaces {
-    public interface IBenchmarkExecutionState {
+﻿using Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces;
+
+namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Interfaces {
+    public interface IBenchmarkExecutionState : IGuid {
         int SequenceNumber { get; }
         string BenchmarkExecutionGuid { get; }
         int ExecutingForHowManySeconds { get; }

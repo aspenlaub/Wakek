@@ -4,10 +4,12 @@ using Aspenlaub.Net.GitHub.CSharp.Wakek.Interfaces;
 namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Entities {
     public class BenchmarkExecutionState : IBenchmarkExecutionState {
         [XmlAttribute("sequencenumber")]
-        public int SequenceNumber { get; }
+        public int SequenceNumber { get; set; }
 
         [XmlAttribute("guid")]
         public string BenchmarkExecutionGuid { get; set; }
+
+        public string Guid { get { return BenchmarkExecutionGuid; } }
 
         [XmlAttribute("secondsexecuting")]
         public int ExecutingForHowManySeconds { get; set; }
@@ -25,6 +27,6 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Entities {
         public int Failures { get; set; }
 
         [XmlAttribute("finished")]
-        public bool Finished { get; }
+        public bool Finished { get; set; }
     }
 }

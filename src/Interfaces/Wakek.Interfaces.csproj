@@ -108,6 +108,7 @@
     <Compile Include="BenchmarkExecutionType.cs" />
     <Compile Include="IBenchmarkDefinition.cs" />
     <Compile Include="IBenchmarkExecution.cs" />
+    <Compile Include="IBenchmarkExecutionFactory.cs" />
     <Compile Include="IBenchmarkExecutionState.cs" />
     <Compile Include="IExecuteCommandContext.cs" />
     <Compile Include="Components\IXmlSerializedObjectReader.cs" />
