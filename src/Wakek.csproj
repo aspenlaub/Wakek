@@ -39,6 +39,9 @@
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <GenerateBuildInfoConfigFile>false</GenerateBuildInfoConfigFile>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>aspenlaub.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Aspenlaub.Net.GitHub.CSharp.Pegh, Version=1.0.6707.27731, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\Aspenlaub.Net.GitHub.CSharp.Vishizhukel.1.0.6708.13285\lib\net46\Aspenlaub.Net.GitHub.CSharp.Pegh.dll</HintPath>

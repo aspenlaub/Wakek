@@ -59,5 +59,15 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+        /// </summary>
+        internal static System.Drawing.Icon aspenlaub {
+            get {
+                object obj = ResourceManager.GetObject("aspenlaub", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
     }
 }
