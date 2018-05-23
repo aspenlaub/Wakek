@@ -6,7 +6,7 @@
         xmlns:entities="clr-namespace:Aspenlaub.Net.GitHub.CSharp.Wakek.Entities;assembly=Aspenlaub.Net.GitHub.CSharp.Wakek.Entities"
         xmlns:vishientities="clr-namespace:Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Entities.Application;assembly=Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Entities"
         mc:Ignorable="d"
-        Title="Wakek" 
+        Title="Wakek" Icon="aspenlaub.ico" Background="Beige" Foreground="Teal"
         Width="1200" MinWidth="1200" Height="600"
         Loaded="WakekWindow_OnLoaded">
     <Window.Resources>
@@ -24,8 +24,8 @@
             <Setter Property="Control.Margin" Value="0,0,5,0" />
         </Style>
     </Window.Resources>
-    <TabControl>
-        <TabItem x:Name="MainTab" Header="MAIN" Padding="120,10,120,10">
+    <TabControl Background="Beige" TabStripPlacement="Bottom">
+        <TabItem x:Name="MainTab" Header="MAIN" Padding="120,10,120,10" Foreground="Teal">
             <Grid x:Name="MainTabSheet">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -52,7 +52,7 @@
                 <DataGrid x:Name="BenchmarkExecutionStateGrid" AutoGenerateColumns="False" EnableRowVirtualization="True" 
                           ItemsSource="{Binding Source={StaticResource BenchmarkExecutionStateViewSource}}" 
                           RowDetailsVisibilityMode="VisibleWhenSelected" IsReadOnly="True"
-                          Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3">
+                          Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3" Foreground="Teal">
                     <DataGrid.Columns>
                         <DataGridTextColumn x:Name="SequenceNumber" Binding="{Binding SequenceNumber}" Header="Sequence" Width="10*" ElementStyle="{StaticResource CellRightAlign}"/>
                         <DataGridTextColumn x:Name="BenchmarkDescription" Binding="{Binding BenchmarkDescription}" Header="Benchmark" Width="60*" ElementStyle="{StaticResource CellLeftAlign}"/>
@@ -66,8 +66,10 @@
                 </DataGrid>
             </Grid>
         </TabItem>
-        <TabItem x:Name="LogTab" Header="LOG" Padding="120,10,120,10">
-            <DataGrid x:Name="LogDataGrid" AutoGenerateColumns="False" EnableRowVirtualization="True" ItemsSource="{Binding Source={StaticResource LogViewSource}}" RowDetailsVisibilityMode="VisibleWhenSelected">
+        <TabItem x:Name="LogTab" Header="LOG" Padding="120,10,120,10" Foreground="Teal">
+            <DataGrid x:Name="LogDataGrid" AutoGenerateColumns="False" EnableRowVirtualization="True" 
+                      ItemsSource="{Binding Source={StaticResource LogViewSource}}" RowDetailsVisibilityMode="VisibleWhenSelected"
+                      Foreground="Teal" >
                 <DataGrid.Columns>
                     <DataGridTextColumn x:Name="CreatedAtColumn" Binding="{Binding CreatedAt, StringFormat='{}{0:hh:mm:ss}'}" Header="Time" Width="10*" ElementStyle="{StaticResource CellLeftAlign}"/>
                     <DataGridTextColumn x:Name="LogEntryClassColumn" Binding="{Binding Class}" Header="Class" Width="10*" ElementStyle="{StaticResource CellLeftAlign}"/>

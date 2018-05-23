@@ -1,9 +1,12 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Application;
 using Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Interfaces.Application;
 using Aspenlaub.Net.GitHub.CSharp.Wakek.Application;
 using Aspenlaub.Net.GitHub.CSharp.Wakek.Entities;
+using Aspenlaub.Net.GitHub.CSharp.Wakek.Interfaces;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Test {
@@ -48,28 +51,24 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Test {
             await Sut.ApplicationCommandController.Execute(typeof(ExecuteCommand));
             Assert.AreEqual(1, Sut.BenchmarkExecutions.Count);
             var executionGuid = Sut.BenchmarkExecutions[0].Guid;
-            var states = Sut.GetObservableCollectionSnapshot(s => s.BenchmarkExecutionGuid == executionGuid, () => Sut.BenchmarkExecutionStates);
-            Assert.AreEqual(1, states.Count);
+            var states = await GetStatesForExecution(executionGuid, 1);
             var state = states[0] as BenchmarkExecutionState;
             Assert.IsNotNull(state);
-            var displayedStates = Sut.GetObservableCollectionSnapshot(s => true, () => Sut.DisplayedBenchmarkExecutionStates);
-            Assert.AreEqual(1, displayedStates.Count);
+            var displayedStates = await GetDisplayedStatesForExecution(1);
             Assert.AreEqual(Sut.SelectedBenchmarkDefinition.Description, displayedStates[0].BenchmarkDescription);
 
             bool handled;
             var feedback = new FeedbackToApplication { Type = FeedbackType.ImportantMessage, Message = Sut.WakekComponentProvider.PeghComponentProvider.XmlSerializer.Serialize(state) };
             Sut.ApplicationFeedbackHandler(feedback, out handled);
             Assert.IsTrue(handled);
-            states = Sut.GetObservableCollectionSnapshot(s => s.BenchmarkExecutionGuid == executionGuid, () => Sut.BenchmarkExecutionStates);
-            Assert.AreEqual(1, states.Count);
+            await GetStatesForExecution(executionGuid, 1);
 
             var execution = Sut.WakekComponentProvider.BenchmarkExecutionFactory.CreateBenchmarkExecution(Sut.BenchmarkDefinitions[0]);
             state = Sut.WakekComponentProvider.BenchmarkExecutionFactory.CreateBenchmarkExecutionState(execution, 1) as BenchmarkExecutionState;
             feedback = new FeedbackToApplication { Type = FeedbackType.ImportantMessage, Message = Sut.WakekComponentProvider.PeghComponentProvider.XmlSerializer.Serialize(state) };
             Sut.ApplicationFeedbackHandler(feedback, out handled);
             Assert.IsTrue(handled);
-            states = Sut.GetObservableCollectionSnapshot(s => true, () => Sut.BenchmarkExecutionStates);
-            Assert.AreEqual(2, states.Count);
+            await GetStatesForExecution(2);
         }
 
         [TestMethod]
@@ -81,14 +80,30 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Test {
             Assert.AreEqual(1, Sut.BenchmarkExecutions.Count);
             var executionGuid = Sut.BenchmarkExecutions[0].Guid;
 
-            var states = Sut.GetObservableCollectionSnapshot(s => s.BenchmarkExecutionGuid == executionGuid, () => Sut.BenchmarkExecutionStates);
-            Assert.AreEqual(2, states.Count);
+            var states = await GetStatesForExecution(executionGuid, 2);
             Assert.IsTrue(states.Any(s => s.ThreadNumber == 1));
             Assert.IsTrue(states.Any(s => s.ThreadNumber == 2));
 
-            var displayedStates = Sut.GetObservableCollectionSnapshot(s => true, () => Sut.DisplayedBenchmarkExecutionStates);
-            Assert.AreEqual(1, displayedStates.Count);
+            var displayedStates = await GetDisplayedStatesForExecution(1);
             Assert.AreEqual(Sut.SelectedBenchmarkDefinition.Description, displayedStates[0].BenchmarkDescription);
+        }
+
+        private async Task<IList<IBenchmarkExecutionState>> GetStatesForExecution(int expectedStates) {
+            return await GetStatesForExecution("", expectedStates);
+        }
+
+        private async Task<IList<IBenchmarkExecutionState>> GetStatesForExecution(string executionGuid, int expectedStates) {
+            IList<IBenchmarkExecutionState> states = null;
+            await Wait.Until(() => (states = Sut.GetObservableCollectionSnapshot(s => s.BenchmarkExecutionGuid == executionGuid || executionGuid == "", () => Sut.BenchmarkExecutionStates)).Count == expectedStates, TimeSpan.FromSeconds(1));
+            Assert.AreEqual(expectedStates, states.Count);
+            return states;
+        }
+
+        private async Task<IList<IDisplayedBenchmarkExecutionState>> GetDisplayedStatesForExecution(int expectedStates) {
+            IList<IDisplayedBenchmarkExecutionState> states = null;
+            await Wait.Until(() => (states = Sut.GetObservableCollectionSnapshot(s => true, () => Sut.DisplayedBenchmarkExecutionStates)).Count == expectedStates, TimeSpan.FromSeconds(1));
+            Assert.AreEqual(expectedStates, states.Count);
+            return states;
         }
     }
 }

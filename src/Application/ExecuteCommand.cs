@@ -33,6 +33,8 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
             var executionStart = DateTime.Now;
             var benchmarkExecution = WakekComponentProvider.BenchmarkExecutionFactory.CreateBenchmarkExecution(ContextOwner.SelectedBenchmarkDefinition) as BenchmarkExecution;
             context.Report(new FeedbackToApplication { Type = FeedbackType.ImportantMessage, Message = XmlSerializer.Serialize(benchmarkExecution) });
+            context.Report(new FeedbackToApplication { Type = FeedbackType.LogInformation, Message = string.Format(Properties.Resources.CreatingThreads, ContextOwner.SelectedBenchmarkDefinition.NumberOfCallsInParallel) });
+
             var client = new HttpClient();
             var url = ContextOwner.SelectedBenchmarkDefinition.Url;
             if (!string.IsNullOrEmpty(url)) {
@@ -40,6 +42,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
             }
             var tasks = Enumerable.Range(1, ContextOwner.SelectedBenchmarkDefinition.NumberOfCallsInParallel).Select(t => ExecuteForThread(context, benchmarkExecution, t, executionStart, client));
             await Task.WhenAll(tasks);
+            context.Report(new FeedbackToApplication { Type = FeedbackType.LogInformation, Message = Properties.Resources.AllThreadsFinished });
         }
 
         private async Task ExecuteForThread(IApplicationCommandExecutionContext context, IBenchmarkExecution benchmarkExecution, int threadNumber, DateTime executionStart, HttpClient client) {
@@ -49,6 +52,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
             var threadExecutionEnd = executionStart.AddSeconds(ContextOwner.SelectedBenchmarkDefinition.ExecutionTimeInSeconds);
 
             context.Report(new FeedbackToApplication { Type = FeedbackType.ImportantMessage, Message = XmlSerializer.Serialize(benchmarkExecutionState) });
+            context.Report(new FeedbackToApplication { Type = FeedbackType.LogInformation, Message = string.Format(Properties.Resources.CreatedThread, threadNumber) });
 
             var counter = 0;
             while (DateTime.Now < threadExecutionEnd) {
@@ -56,7 +60,10 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
                     Thread.Sleep(TimeSpan.FromMilliseconds(500));
                 } else {
                     try {
+                        var requestedAt = DateTime.Now;
                         await client.GetStringAsync("?g=" + Guid.NewGuid());
+                        var requestDuration = DateTime.Now.Subtract(requestedAt);
+                        context.Report(new FeedbackToApplication { Type = FeedbackType.LogInformation, Message = string.Format(Properties.Resources.WebRequestFinished, (int)requestDuration.TotalMilliseconds, threadNumber) });
                         benchmarkExecutionState.Successes ++;
                     } catch {
                         benchmarkExecutionState.Failures ++;
@@ -76,6 +83,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
             benchmarkExecutionState.ExecutingForHowManySeconds = (int)Math.Floor((DateTime.Now - executionStart).TotalSeconds);
             benchmarkExecutionState.Finished = true;
             context.Report(new FeedbackToApplication { Type = FeedbackType.ImportantMessage, Message = XmlSerializer.Serialize(benchmarkExecutionState) });
+            context.Report(new FeedbackToApplication { Type = FeedbackType.LogInformation, Message = string.Format(Properties.Resources.FinishedThread, threadNumber) });
         }
     }
 }

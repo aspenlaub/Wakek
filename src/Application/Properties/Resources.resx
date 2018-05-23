@@ -117,7 +117,22 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AllThreadsFinished" xml:space="preserve">
+    <value>All threads finished</value>
+  </data>
+  <data name="CreatedThread" xml:space="preserve">
+    <value>Thread {0} started</value>
+  </data>
+  <data name="CreatingThreads" xml:space="preserve">
+    <value>Creating {0} thread/-s</value>
+  </data>
   <data name="ExecuteCommandName" xml:space="preserve">
     <value>Execute</value>
+  </data>
+  <data name="FinishedThread" xml:space="preserve">
+    <value>Thread {0} finished</value>
+  </data>
+  <data name="WebRequestFinished" xml:space="preserve">
+    <value>Web request finished in {0} ms (thread {1})</value>
   </data>
 </root>

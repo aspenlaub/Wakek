@@ -98,6 +98,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Management.Automation, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>packages\System.Management.Automation_PowerShell_3.0.6.3.9600.17400\lib\net40\System.Management.Automation.dll</HintPath>
       <Private>True</Private>
@@ -175,6 +176,11 @@
       <Project>{d23e3d46-e370-403b-80c2-0c58b746a9b7}</Project>
       <Name>Wakek.Interfaces</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="aspenlaub.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

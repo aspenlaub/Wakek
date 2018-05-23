@@ -61,11 +61,56 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to All threads finished.
+        /// </summary>
+        internal static string AllThreadsFinished {
+            get {
+                return ResourceManager.GetString("AllThreadsFinished", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Thread {0} started.
+        /// </summary>
+        internal static string CreatedThread {
+            get {
+                return ResourceManager.GetString("CreatedThread", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Creating {0} thread/-s.
+        /// </summary>
+        internal static string CreatingThreads {
+            get {
+                return ResourceManager.GetString("CreatingThreads", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Execute.
         /// </summary>
         internal static string ExecuteCommandName {
             get {
                 return ResourceManager.GetString("ExecuteCommandName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Thread {0} finished.
+        /// </summary>
+        internal static string FinishedThread {
+            get {
+                return ResourceManager.GetString("FinishedThread", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Web request finished in {0} ms (thread {1}).
+        /// </summary>
+        internal static string WebRequestFinished {
+            get {
+                return ResourceManager.GetString("WebRequestFinished", resourceCulture);
             }
         }
     }
