@@ -20,6 +20,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
         protected IApplicationCommandController Controller;
         protected IApplicationCommandExecutionContext Context;
         protected SynchronizationContext UiSynchronizationContext;
+        public Func<string, int> NavigateToStringReturnContentAsNumber { get; }
         public IApplicationLog Log { get; }
 
         public BenchmarkDefinitions BenchmarkDefinitions { get; }
@@ -31,11 +32,12 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
 
         protected int NextSequenceNumber;
 
-        public WakekApplication(IWakekComponentProvider wakekComponentProvider, IApplicationCommandController controller, IApplicationCommandExecutionContext context, SynchronizationContext uiSynchronizationContext) {
+        public WakekApplication(IWakekComponentProvider wakekComponentProvider, IApplicationCommandController controller, IApplicationCommandExecutionContext context, SynchronizationContext uiSynchronizationContext, Func<string, int> navigateToStringReturnContentAsNumber) {
             WakekComponentProvider = wakekComponentProvider;
             Controller = controller;
             Context = context;
             UiSynchronizationContext = uiSynchronizationContext;
+            NavigateToStringReturnContentAsNumber = navigateToStringReturnContentAsNumber;
             Log = new ApplicationLog();
             NextSequenceNumber = 1;
 

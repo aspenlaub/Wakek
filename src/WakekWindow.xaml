@@ -49,6 +49,7 @@
                 <Button x:Name="Execute" Height="25" Width="100" Padding="0" Margin="10,10,0,10" Background="Transparent" ToolTip="Execute benchmark" Grid.Row="0" Grid.Column="1" Click="Execute_OnClick">
                     _Execute
                 </Button>
+                <WebBrowser x:Name="HtmlOutput" Grid.Row="0" Grid.Column="2" Margin="10,10,0,10" Height="28" />
                 <DataGrid x:Name="BenchmarkExecutionStateGrid" AutoGenerateColumns="False" EnableRowVirtualization="True" 
                           ItemsSource="{Binding Source={StaticResource BenchmarkExecutionStateViewSource}}" 
                           RowDetailsVisibilityMode="VisibleWhenSelected" IsReadOnly="True"

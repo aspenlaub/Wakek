@@ -21,7 +21,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Test {
 
         public WakekTestApplication() {
             ApplicationCommandController = new ApplicationCommandController(ApplicationFeedbackHandler);
-            WrappedWakekApplication = new WakekApplication(new WakekComponentProvider(new ComponentProvider()), ApplicationCommandController, ApplicationCommandController, SynchronizationContext.Current);
+            WrappedWakekApplication = new WakekApplication(new WakekComponentProvider(new ComponentProvider()), ApplicationCommandController, ApplicationCommandController, SynchronizationContext.Current, NavigateToStringReturnContentAsNumber);
             WrappedWakekApplication.BenchmarkDefinitions.Clear();
             WrappedWakekApplication.BenchmarkDefinitions.Add(
                 new BenchmarkDefinition { BenchmarkExecutionType = BenchmarkExecutionType.CsNative, Description = "Wakek Test Benchmark", ExecutionTimeInSeconds = 2, Guid = TestBenchmarkGuid, NumberOfCallsInParallel = 1 }
@@ -56,5 +56,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Test {
         public IList<T> GetObservableCollectionSnapshot<T>(Func<T, bool> criteria, Func<IList<T>> getObservableCollection) {
             return WrappedWakekApplication.GetObservableCollectionSnapshot(criteria, getObservableCollection);
         }
+
+        public Func<string, int> NavigateToStringReturnContentAsNumber => html => { return 0; };
     }
 }

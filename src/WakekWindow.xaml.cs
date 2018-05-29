@@ -11,6 +11,7 @@ using Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Interfaces.Application;
 using Aspenlaub.Net.GitHub.CSharp.Wakek.Application;
 using Aspenlaub.Net.GitHub.CSharp.Wakek.Application.Components;
 using Aspenlaub.Net.GitHub.CSharp.Wakek.Interfaces;
+using mshtml;
 
 #pragma warning disable 4014
 
@@ -22,10 +23,13 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek {
         protected ApplicationCommandController Controller;
         protected WakekApplication WakekApplication;
         protected ViewSources WakekViewSources;
+        protected SynchronizationContext UiSynchronizationContext;
+        protected string HtmlOutputContentDivInnerHtml;
 
         public WakekWindow() {
             Controller = new ApplicationCommandController(ApplicationFeedbackHandler);
-            WakekApplication = new WakekApplication(new WakekComponentProvider(new ComponentProvider()), Controller, Controller, SynchronizationContext.Current);
+            UiSynchronizationContext = SynchronizationContext.Current;
+            WakekApplication = new WakekApplication(new WakekComponentProvider(new ComponentProvider()), Controller, Controller, UiSynchronizationContext, NavigateToStringReturnContentAsNumber);
 
             InitializeComponent();
         }
@@ -38,10 +42,12 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek {
             switch (feedback.Type) {
                 case FeedbackType.CommandExecutionCompleted: {
                     CommandExecutionCompletedHandler(feedback);
-                } break;
+                }
+                break;
                 case FeedbackType.CommandsEnabledOrDisabled: {
                     CommandsEnabledOrDisabledHandler();
-                } break;
+                }
+                break;
                 default: {
                     throw new NotImplementedException();
                 }
@@ -80,6 +86,41 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek {
         private void SelectedBenchmarkDefinition_OnDropDownClosed(object sender, EventArgs e) {
             var item = SelectedBenchmarkDefinition.SelectedItem as IBenchmarkDefinition;
             WakekApplication.SelectBenchmarkDefinition(item);
+        }
+
+        private int NavigateToStringReturnContentAsNumber(string html) {
+            if (UiSynchronizationContext == SynchronizationContext.Current) { return 0; }
+
+            UiSynchronizationContext.Post(state => RefreshWebBrowserContents(), null);
+            Thread.Sleep(TimeSpan.FromMilliseconds(300));
+            var initialContents = HtmlOutputContentDivInnerHtml ?? "..";
+
+            UiSynchronizationContext.Send(state => HtmlOutput.NavigateToString(html), null);
+            Thread.Sleep(TimeSpan.FromMilliseconds(1000));
+            string oldContents;
+            var newContents = "";
+            do {
+                UiSynchronizationContext.Post(state => RefreshWebBrowserContents(), null);
+                Thread.Sleep(TimeSpan.FromMilliseconds(300));
+
+                oldContents = newContents;
+                newContents = HtmlOutputContentDivInnerHtml ?? "..";
+                if (newContents != initialContents) {
+                    initialContents = "..";
+                }
+            } while (oldContents != newContents || newContents.Contains("..") || newContents == initialContents);
+
+            int result;
+            int.TryParse(newContents, out result);
+            return result;
+        }
+
+        private void RefreshWebBrowserContents() {
+            var document = (HTMLDocumentClass)HtmlOutput.Document;
+            if (document?.body == null) { return; }
+
+            var element = document.getElementById("content");
+            HtmlOutputContentDivInnerHtml = element?.innerHTML;
         }
     }
 }

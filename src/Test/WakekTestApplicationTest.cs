@@ -28,6 +28,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Test {
             Assert.AreEqual(WakekTestApplication.TestBenchmarkGuid, Sut.SelectedBenchmarkDefinition.Guid);
             Assert.AreEqual(WakekTestApplication.TestParallelBenchmarkGuid, Sut.BenchmarkDefinitions[1].Guid);
             Assert.IsNotNull(Sut.WakekComponentProvider);
+            Assert.AreEqual(0, Sut.NavigateToStringReturnContentAsNumber("url"));
         }
 
         [TestMethod]
