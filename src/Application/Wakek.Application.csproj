@@ -102,6 +102,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Components\BenchmarkExecutionFactory.cs" />
+    <Compile Include="Components\HttpClientProxy.cs" />
     <Compile Include="ExecuteCommand.cs" />
     <Compile Include="IWakekApplication.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

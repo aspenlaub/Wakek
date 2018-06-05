@@ -128,10 +128,12 @@
   <ItemGroup>
     <Compile Include="BenchmarkDefinitionTest.cs" />
     <Compile Include="BenchmarkExecutionFactoryTest.cs" />
+    <Compile Include="ExecuteCommandTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SequenceNumberGeneratorTest.cs" />
     <Compile Include="Wait.cs" />
     <Compile Include="WaitTest.cs" />
+    <Compile Include="WakekComponentProviderTest.cs" />
     <Compile Include="WakekTestApplication.cs" />
     <Compile Include="WakekTestApplicationTest.cs" />
     <Compile Include="XmlSerializedObjectReaderTest.cs" />

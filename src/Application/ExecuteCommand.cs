@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Components;
@@ -35,19 +34,19 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
             context.Report(new FeedbackToApplication { Type = FeedbackType.ImportantMessage, Message = XmlSerializer.Serialize(benchmarkExecution) });
             context.Report(new FeedbackToApplication { Type = FeedbackType.LogInformation, Message = string.Format(Properties.Resources.CreatingThreads, ContextOwner.SelectedBenchmarkDefinition.NumberOfCallsInParallel) });
 
-            var client = new HttpClient();
+            var client = WakekComponentProvider.HttpClient;
             var url = ContextOwner.SelectedBenchmarkDefinition.Url;
             if (!string.IsNullOrEmpty(url)) {
                 client.BaseAddress = new Uri(url);
             }
             switch (ContextOwner.SelectedBenchmarkDefinition.BenchmarkExecutionType) {
                 case BenchmarkExecutionType.CsNative: {
-                    var tasks = Enumerable.Range(1, ContextOwner.SelectedBenchmarkDefinition.NumberOfCallsInParallel).Select(t => ExecuteForThreadNativeCs(context, benchmarkExecution, t, executionStart, client));
+                    var tasks = Enumerable.Range(1, ContextOwner.SelectedBenchmarkDefinition.NumberOfCallsInParallel).Select(t => ExecuteForThreadNativeCsAsync(context, benchmarkExecution, t, executionStart, client));
                     await Task.WhenAll(tasks);
                 }
                 break;
                 case BenchmarkExecutionType.JavaScript: {
-                    await ExecuteForThreadJavaScript(context, benchmarkExecution, executionStart, client);
+                    await ExecuteForThreadJavaScriptAsync(context, benchmarkExecution, executionStart, client);
                 }
                 break;
             }
@@ -55,35 +54,38 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
             context.Report(new FeedbackToApplication { Type = FeedbackType.LogInformation, Message = Properties.Resources.AllThreadsFinished });
         }
 
-        private async Task ExecuteForThreadNativeCs(IApplicationCommandExecutionContext context, IBenchmarkExecution benchmarkExecution, int threadNumber, DateTime executionStart, HttpClient client) {
+        private async Task ExecuteForThreadNativeCsAsync(IApplicationCommandExecutionContext context, IBenchmarkExecution benchmarkExecution, int threadNumber, DateTime executionStart, IHttpClient client) {
             DateTime threadExecutionEnd;
             var benchmarkExecutionState = BeginExecuteForThread(context, benchmarkExecution, threadNumber, executionStart, out threadExecutionEnd);
 
             var counter = 0;
-            while (DateTime.Now < threadExecutionEnd) {
+            do {
                 if (string.IsNullOrEmpty(ContextOwner.SelectedBenchmarkDefinition.Url)) {
                     Thread.Sleep(TimeSpan.FromMilliseconds(500));
-                } else {
+                }
+                else {
                     try {
                         var requestedAt = DateTime.Now;
                         await client.GetStringAsync("?g=" + Guid.NewGuid());
                         var requestDuration = DateTime.Now.Subtract(requestedAt);
-                        context.Report(new FeedbackToApplication { Type = FeedbackType.LogInformation, Message = string.Format(Properties.Resources.WebRequestFinished, (int)requestDuration.TotalMilliseconds, threadNumber) });
-                        benchmarkExecutionState.Successes ++;
-                    } catch {
-                        benchmarkExecutionState.Failures ++;
+                        context.Report(new FeedbackToApplication {
+                            Type = FeedbackType.LogInformation,
+                            Message = string.Format(Properties.Resources.WebRequestFinished, (int) requestDuration.TotalMilliseconds, threadNumber)
+                        });
+                        benchmarkExecutionState.Successes++;
+                    }
+                    catch {
+                        benchmarkExecutionState.Failures++;
                     }
                 }
 
-                benchmarkExecutionState.ExecutingForHowManySeconds = (int)Math.Floor((DateTime.Now - executionStart).TotalSeconds);
+                benchmarkExecutionState.ExecutingForHowManySeconds = (int) Math.Floor((DateTime.Now - executionStart).TotalSeconds);
 
                 counter = (counter + 1) % 10;
-                if (counter != 0) {
-                    continue;
+                if (counter == 1) {
+                    context.Report(new FeedbackToApplication { Type = FeedbackType.ImportantMessage, Message = XmlSerializer.Serialize(benchmarkExecutionState) });
                 }
-
-                context.Report(new FeedbackToApplication { Type = FeedbackType.ImportantMessage, Message = XmlSerializer.Serialize(benchmarkExecutionState) });
-            }
+            } while (DateTime.Now < threadExecutionEnd);
 
             EndExecuteForThread(context, threadNumber, executionStart, benchmarkExecutionState);
         }
@@ -109,7 +111,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
             return benchmarkExecutionState;
         }
 
-        private async Task ExecuteForThreadJavaScript(IApplicationCommandExecutionContext context, IBenchmarkExecution benchmarkExecution, DateTime executionStart, HttpClient client) {
+        private async Task ExecuteForThreadJavaScriptAsync(IApplicationCommandExecutionContext context, IBenchmarkExecution benchmarkExecution, DateTime executionStart, IHttpClient client) {
             var jQueryScript = await client.GetStringAsync("http://code.jquery.com/jquery-2.0.0.min.js");
             var html = @"<!DOCTYPE html><html><head><meta http-equiv='X-UA-Compatible' content='IE=edge;chrome=1' /><script type='text/javascript'>" + jQueryScript + ' '
                 + @"$(document).ready(function() { executionEndTime  = new Date(); executionEndTime.setSeconds(executionEndTime.getSeconds() + "

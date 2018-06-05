@@ -10,6 +10,7 @@ using Aspenlaub.Net.GitHub.CSharp.Wakek.Application.Components;
 using Aspenlaub.Net.GitHub.CSharp.Wakek.Entities;
 using Aspenlaub.Net.GitHub.CSharp.Wakek.Interfaces;
 using Aspenlaub.Net.GitHub.CSharp.Wakek.Interfaces.Components;
+using Moq;
 
 namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Test {
     public class WakekTestApplication : IWakekApplication {
@@ -19,15 +20,28 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Test {
         public const string TestBenchmarkGuid = "E87C2B16-8EBD-517F-A5DA-6F915FFD4E60";
         public const string TestParallelBenchmarkGuid = "F9B96A24-45B7-A4BA-32F1-B15D244EA141";
 
-        public WakekTestApplication() {
+        public WakekTestApplication(IHttpClient httpClient) {
+            var realComponentProvider = new WakekComponentProvider(new ComponentProvider());
+            var componentProviderMock = new Mock<IWakekComponentProvider>();
+            componentProviderMock.SetupGet(c => c.BenchmarkExecutionFactory).Returns(realComponentProvider.BenchmarkExecutionFactory);
+            componentProviderMock.SetupGet(c => c.HttpClient).Returns(httpClient);
+            componentProviderMock.SetupGet(c => c.PeghComponentProvider).Returns(realComponentProvider.PeghComponentProvider);
+            componentProviderMock.SetupGet(c => c.SequenceNumberGenerator).Returns(realComponentProvider.SequenceNumberGenerator);
+            componentProviderMock.SetupGet(c => c.XmlSerializedObjectReader).Returns(realComponentProvider.XmlSerializedObjectReader);
             ApplicationCommandController = new ApplicationCommandController(ApplicationFeedbackHandler);
-            WrappedWakekApplication = new WakekApplication(new WakekComponentProvider(new ComponentProvider()), ApplicationCommandController, ApplicationCommandController, SynchronizationContext.Current, NavigateToStringReturnContentAsNumber);
+            WrappedWakekApplication = new WakekApplication(componentProviderMock.Object, ApplicationCommandController, ApplicationCommandController, SynchronizationContext.Current, NavigateToStringReturnContentAsNumber);
             WrappedWakekApplication.BenchmarkDefinitions.Clear();
             WrappedWakekApplication.BenchmarkDefinitions.Add(
                 new BenchmarkDefinition { BenchmarkExecutionType = BenchmarkExecutionType.CsNative, Description = "Wakek Test Benchmark", ExecutionTimeInSeconds = 2, Guid = TestBenchmarkGuid, NumberOfCallsInParallel = 1 }
             );
             WrappedWakekApplication.BenchmarkDefinitions.Add(
                 new BenchmarkDefinition { BenchmarkExecutionType = BenchmarkExecutionType.CsNative, Description = "Wakek Test Parallel Benchmark", ExecutionTimeInSeconds = 2, Guid = TestParallelBenchmarkGuid, NumberOfCallsInParallel = 2 }
+            );
+            WrappedWakekApplication.BenchmarkDefinitions.Add(
+                new BenchmarkDefinition { BenchmarkExecutionType = BenchmarkExecutionType.CsNative, Description = "Wakek Test Benchmark With Url", ExecutionTimeInSeconds = 0, Guid = Guid.NewGuid().ToString(), NumberOfCallsInParallel = 1, Url = @"https://www.viperfisch.de/wakek/helloworld.php" }
+            );
+            WrappedWakekApplication.BenchmarkDefinitions.Add(
+                new BenchmarkDefinition { BenchmarkExecutionType = BenchmarkExecutionType.JavaScript, Description = "Wakek Test JavaScript With Url", ExecutionTimeInSeconds = 0, Guid = Guid.NewGuid().ToString(), NumberOfCallsInParallel = 1, Url = @"https://www.viperfisch.de/wakek/helloworld.php" }
             );
         }
 
@@ -57,6 +71,6 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Test {
             return WrappedWakekApplication.GetObservableCollectionSnapshot(criteria, getObservableCollection);
         }
 
-        public Func<string, int> NavigateToStringReturnContentAsNumber => html => { return 0; };
+        public Func<string, int> NavigateToStringReturnContentAsNumber => html => { return 1; };
     }
 }

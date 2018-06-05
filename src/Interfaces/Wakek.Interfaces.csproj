@@ -100,6 +100,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BenchmarkExecutionType.cs" />
+    <Compile Include="Components\IHttpClient.cs" />
     <Compile Include="IBenchmarkDefinition.cs" />
     <Compile Include="IBenchmarkExecution.cs" />
     <Compile Include="IBenchmarkExecutionFactory.cs" />
