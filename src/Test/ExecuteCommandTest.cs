@@ -49,7 +49,14 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Test {
             var state = states[0] as BenchmarkExecutionState;
             Assert.IsNotNull(state);
             var displayedStates = await GetDisplayedStatesForExecution(1);
-            Assert.AreEqual(WakekApplication.SelectedBenchmarkDefinition.Description, displayedStates[0].BenchmarkDescription);
+            var displayedState = displayedStates[0];
+            Assert.AreEqual(WakekApplication.SelectedBenchmarkDefinition.Description, displayedState.BenchmarkDescription);
+            Assert.AreEqual(state.ExecutingForHowManySeconds, displayedState.ExecutingForHowManySeconds);
+            Assert.AreEqual(state.Failures, displayedState.Failures);
+            Assert.AreEqual(state.Successes, displayedState.Successes);
+            Assert.AreEqual(state.RemoteExecutingForHowManySeconds, displayedState.RemoteExecutingForHowManySeconds);
+            Assert.AreEqual(state.RemoteRequiringForHowManySeconds, displayedState.RemoteRequiringForHowManySeconds);
+            Assert.AreEqual(state.Finished, displayedState.Finished);
 
             bool handled;
             var feedback = new FeedbackToApplication { Type = FeedbackType.ImportantMessage, Message = WakekApplication.WakekComponentProvider.PeghComponentProvider.XmlSerializer.Serialize(state) };
