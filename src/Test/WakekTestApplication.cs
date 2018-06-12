@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading;
+using System.Threading.Tasks;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Components;
 using Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Application;
 using Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Interfaces.Application;
@@ -27,6 +28,12 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Test {
             componentProviderMock.SetupGet(c => c.HttpClient).Returns(httpClient);
             componentProviderMock.SetupGet(c => c.PeghComponentProvider).Returns(realComponentProvider.PeghComponentProvider);
             componentProviderMock.SetupGet(c => c.SequenceNumberGenerator).Returns(realComponentProvider.SequenceNumberGenerator);
+            var telemetryDataReaderMock = new Mock<ITelemetryDataReader>();
+            IList<ITelemetryData> result = new List<ITelemetryData> {
+                new TelemetryData { ExecutingForHowManyMilliSeconds = 24, RequiringForHowManyMilliSeconds = 7 }
+            };
+            telemetryDataReaderMock.Setup(t => t.ReadAsync(It.IsAny<IBenchmarkDefinition>())).Returns(Task.FromResult(result));
+            componentProviderMock.SetupGet(c => c.TelemetryDataReader).Returns(telemetryDataReaderMock.Object);
             componentProviderMock.SetupGet(c => c.XmlSerializedObjectReader).Returns(realComponentProvider.XmlSerializedObjectReader);
             ApplicationCommandController = new ApplicationCommandController(ApplicationFeedbackHandler);
             WrappedWakekApplication = new WakekApplication(componentProviderMock.Object, ApplicationCommandController, ApplicationCommandController, SynchronizationContext.Current, NavigateToStringReturnContentAsNumber);
@@ -38,10 +45,10 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Test {
                 new BenchmarkDefinition { BenchmarkExecutionType = BenchmarkExecutionType.CsNative, Description = "Wakek Test Parallel Benchmark", ExecutionTimeInSeconds = 2, Guid = TestParallelBenchmarkGuid, NumberOfCallsInParallel = 2 }
             );
             WrappedWakekApplication.BenchmarkDefinitions.Add(
-                new BenchmarkDefinition { BenchmarkExecutionType = BenchmarkExecutionType.CsNative, Description = "Wakek Test Benchmark With Url", ExecutionTimeInSeconds = 0, Guid = Guid.NewGuid().ToString(), NumberOfCallsInParallel = 1, Url = @"https://www.viperfisch.de/wakek/helloworld.php" }
+                new BenchmarkDefinition { BenchmarkExecutionType = BenchmarkExecutionType.CsNative, Description = "Wakek Test Benchmark With Url", ExecutionTimeInSeconds = 0, Guid = Guid.NewGuid().ToString(), NumberOfCallsInParallel = 1, Url = @"https://www.viperfisch.de/wakek/helloworld.php", TelemetryUrl = "" }
             );
             WrappedWakekApplication.BenchmarkDefinitions.Add(
-                new BenchmarkDefinition { BenchmarkExecutionType = BenchmarkExecutionType.JavaScript, Description = "Wakek Test JavaScript With Url", ExecutionTimeInSeconds = 0, Guid = Guid.NewGuid().ToString(), NumberOfCallsInParallel = 1, Url = @"https://www.viperfisch.de/wakek/helloworld.php" }
+                new BenchmarkDefinition { BenchmarkExecutionType = BenchmarkExecutionType.JavaScript, Description = "Wakek Test JavaScript With Url", ExecutionTimeInSeconds = 0, Guid = Guid.NewGuid().ToString(), NumberOfCallsInParallel = 1, Url = @"https://www.viperfisch.de/wakek/helloworld.php", TelemetryUrl = "" }
             );
         }
 

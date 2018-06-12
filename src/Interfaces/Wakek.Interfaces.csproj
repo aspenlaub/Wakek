@@ -101,6 +101,8 @@
   <ItemGroup>
     <Compile Include="BenchmarkExecutionType.cs" />
     <Compile Include="Components\IHttpClient.cs" />
+    <Compile Include="Components\ITelemetryDataParser.cs" />
+    <Compile Include="Components\ITelemetryDataReader.cs" />
     <Compile Include="IBenchmarkDefinition.cs" />
     <Compile Include="IBenchmarkExecution.cs" />
     <Compile Include="IBenchmarkExecutionFactory.cs" />
@@ -110,6 +112,7 @@
     <Compile Include="Components\IXmlSerializedObjectReader.cs" />
     <Compile Include="Components\ISequenceNumberGenerator.cs" />
     <Compile Include="Components\IWakekComponentProvider.cs" />
+    <Compile Include="ITelemetryData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -6,6 +6,8 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Interfaces.Components {
         IComponentProvider PeghComponentProvider { get; }
         IHttpClient HttpClient { get; }
         ISequenceNumberGenerator SequenceNumberGenerator { get; }
+        ITelemetryDataParser TelemetryDataParser { get; }
+        ITelemetryDataReader TelemetryDataReader { get; }
         IXmlSerializedObjectReader XmlSerializedObjectReader { get; }
     }
 }

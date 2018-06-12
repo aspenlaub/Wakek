@@ -16,6 +16,9 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Entities {
         [XmlElement("url")]
         public string Url { get; set; }
 
+        [XmlElement("telemetryurl")]
+        public string TelemetryUrl { get; set; }
+
         [XmlElement("executiontype")]
         public BenchmarkExecutionType BenchmarkExecutionType { get; set; }
 

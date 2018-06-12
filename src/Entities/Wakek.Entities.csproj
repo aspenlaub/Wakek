@@ -107,6 +107,7 @@
     <Compile Include="DisplayedBenchmarkExecutionState.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SecretBenchmarkDefinitions.cs" />
+    <Compile Include="TelemetryData.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

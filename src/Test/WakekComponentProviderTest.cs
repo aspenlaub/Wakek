@@ -12,7 +12,8 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Test {
             Assert.IsNotNull(sut.HttpClient);
             Assert.IsNotNull(sut.PeghComponentProvider);
             Assert.IsNotNull(sut.SequenceNumberGenerator);
-            Assert.IsNotNull(sut.HttpClient);
+            Assert.IsNotNull(sut.TelemetryDataParser);
+            Assert.IsNotNull(sut.TelemetryDataReader);
         }
     }
 }

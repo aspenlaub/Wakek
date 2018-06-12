@@ -32,6 +32,8 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application.Components {
         public IBenchmarkExecutionFactory BenchmarkExecutionFactory { get { return DefaultComponent<IBenchmarkExecutionFactory, BenchmarkExecutionFactory>(() => new BenchmarkExecutionFactory(this)); } }
         public IHttpClient HttpClient { get { return new HttpClientProxy(); } }
         public ISequenceNumberGenerator SequenceNumberGenerator { get { return DefaultComponent<ISequenceNumberGenerator, SequenceNumberGenerator>(); } }
+        public ITelemetryDataParser TelemetryDataParser { get { return DefaultComponent<ITelemetryDataParser, TelemetryDataParser>(); } }
+        public ITelemetryDataReader TelemetryDataReader { get { return DefaultComponent<ITelemetryDataReader, TelemetryDataReader>(() => new TelemetryDataReader(this)); } }
         public IXmlSerializedObjectReader XmlSerializedObjectReader { get { return DefaultComponent<IXmlSerializedObjectReader, XmlSerializedObjectReader>(() => new XmlSerializedObjectReader(PeghComponentProvider)); } }
     }
 }

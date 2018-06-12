@@ -13,7 +13,8 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Entities {
                     Description = "Hello World from viperfisch.de",
                     Url = "https://www.viperfisch.de/wakek/helloworld.php",
                     ExecutionTimeInSeconds = 5,
-                    NumberOfCallsInParallel = 1
+                    NumberOfCallsInParallel = 1,
+                    TelemetryUrl ="https://www.viperfisch.de/wakek/gettelemetry.php"
                 }
             });
 

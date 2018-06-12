@@ -110,6 +110,7 @@
       <HintPath>..\packages\System.Management.Automation_PowerShell_3.0.6.3.9600.17400\lib\net40\System.Management.Automation.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.Net.Http" />
   </ItemGroup>
   <Choose>
     <When Condition="('$(VisualStudioVersion)' == '10.0' or '$(VisualStudioVersion)' == '') and '$(TargetFrameworkVersion)' == 'v3.5'">
@@ -132,6 +133,8 @@
     <Compile Include="HttpClientProxyTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SequenceNumberGeneratorTest.cs" />
+    <Compile Include="TelemetryDataParserTest.cs" />
+    <Compile Include="TelemetryDataReaderTest.cs" />
     <Compile Include="Wait.cs" />
     <Compile Include="WaitTest.cs" />
     <Compile Include="WakekComponentProviderTest.cs" />
@@ -142,6 +145,9 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
+    <EmbeddedResource Include="telemetrydata.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Application\Wakek.Application.csproj">
