@@ -266,7 +266,7 @@ Task("PushNuGetPackage")
 
 Task("CleanRestorePullUpdateNuspec")
   .Description("Clean, restore packages, pull changes, update nuspec")
-  .IsDependentOn("Clean").IsDependentOn("Restore").IsDependentOn("Pull").IsDependentOn("UpdateNuspec").Does(() => {
+  .IsDependentOn("Clean").IsDependentOn("Pull").IsDependentOn("Restore").IsDependentOn("UpdateNuspec").Does(() => {
   });
 
 Task("BuildAndTestDebugAndRelease")
