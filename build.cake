@@ -66,7 +66,7 @@ Task("UpdateBuildCake")
       throw new Exception("Your build.cake file has been updated. Please check it in and then retry running it.");
     } else {
       System.IO.File.Delete(tempCakeBuildFileName);
-	}
+    }
   });
 
 Task("Clean")
@@ -93,10 +93,10 @@ Task("Pull")
     var pullErrorsAndInfos = new ErrorsAndInfos();
     var developerSettings = componentProvider.PeghComponentProvider.SecretRepository.Get(developerSettingsSecret, pullErrorsAndInfos);
     if (pullErrorsAndInfos.Errors.Any()) {
-	  throw new Exception(string.Join("\r\n", pullErrorsAndInfos.Errors));
-	}
+      throw new Exception(string.Join("\r\n", pullErrorsAndInfos.Errors));
+    }
 
-	GitPull(repositoryFolder, developerSettings.Author, developerSettings.Email);
+    GitPull(repositoryFolder, developerSettings.Author, developerSettings.Email);
   });
 
 Task("UpdateNuspec")
@@ -104,12 +104,12 @@ Task("UpdateNuspec")
   .Does(() => {
     var solutionFileFullName = solution.Replace('/', '\\');
     var nuSpecFile = solutionFileFullName.Replace(".sln", ".nuspec");
-	var nuSpecErrorsAndInfos = new ErrorsAndInfos();
+    var nuSpecErrorsAndInfos = new ErrorsAndInfos();
     var headTipIdSha = componentProvider.GitUtilities.HeadTipIdSha(new Folder(repositoryFolder));
-	componentProvider.NuSpecCreator.CreateNuSpecFileIfRequiredOrPresent(true, solutionFileFullName, new List<string> { headTipIdSha }, nuSpecErrorsAndInfos);
+    componentProvider.NuSpecCreator.CreateNuSpecFileIfRequiredOrPresent(true, solutionFileFullName, new List<string> { headTipIdSha }, nuSpecErrorsAndInfos);
     if (nuSpecErrorsAndInfos.Errors.Any()) {
-	  throw new Exception(string.Join("\r\n", nuSpecErrorsAndInfos.Errors));
-	}
+      throw new Exception(string.Join("\r\n", nuSpecErrorsAndInfos.Errors));
+    }
   });
 
 Task("VerifyThatThereAreNoUncommittedChanges")
@@ -118,8 +118,8 @@ Task("VerifyThatThereAreNoUncommittedChanges")
     var uncommittedErrorsAndInfos = new ErrorsAndInfos();
     componentProvider.GitUtilities.VerifyThatThereAreNoUncommittedChanges(new Folder(repositoryFolder), uncommittedErrorsAndInfos);
     if (uncommittedErrorsAndInfos.Errors.Any()) {
-	  throw new Exception(string.Join("\r\n", uncommittedErrorsAndInfos.Errors));
-	}
+      throw new Exception(string.Join("\r\n", uncommittedErrorsAndInfos.Errors));
+    }
   });
 
 Task("VerifyThatDevelopmentBranchIsAheadOfMaster")
@@ -127,8 +127,8 @@ Task("VerifyThatDevelopmentBranchIsAheadOfMaster")
   .Description("Verify that if the development branch is at least one commit after the master")
   .Does(() => {
     if (!componentProvider.GitUtilities.IsBranchAheadOfMaster(new Folder(repositoryFolder))) {
-	  throw new Exception("Branch must be at least one commit ahead of the origin/master");
-	}
+      throw new Exception("Branch must be at least one commit ahead of the origin/master");
+    }
   });
 
 Task("VerifyThatMasterBranchDoesNotHaveOpenPullRequests")
@@ -136,28 +136,58 @@ Task("VerifyThatMasterBranchDoesNotHaveOpenPullRequests")
   .Description("Verify that the master branch does not have open pull requests")
   .Does(() => {
     var noPullRequestsErrorsAndInfos = new ErrorsAndInfos();
-	bool thereAreOpenPullRequests;
-	if (solutionSpecialSettingsDictionary.ContainsKey("PullRequestsToIgnore")) {
-	  thereAreOpenPullRequests = componentProvider.GitHubUtilities.HasOpenPullRequest(new Folder(repositoryFolder), solutionSpecialSettingsDictionary["PullRequestsToIgnore"], noPullRequestsErrorsAndInfos);
-	} else {
-	  thereAreOpenPullRequests = componentProvider.GitHubUtilities.HasOpenPullRequest(new Folder(repositoryFolder), noPullRequestsErrorsAndInfos);
-	}
+    bool thereAreOpenPullRequests;
+    if (solutionSpecialSettingsDictionary.ContainsKey("PullRequestsToIgnore")) {
+      thereAreOpenPullRequests = componentProvider.GitHubUtilities.HasOpenPullRequest(new Folder(repositoryFolder), solutionSpecialSettingsDictionary["PullRequestsToIgnore"], noPullRequestsErrorsAndInfos);
+    } else {
+      thereAreOpenPullRequests = componentProvider.GitHubUtilities.HasOpenPullRequest(new Folder(repositoryFolder), noPullRequestsErrorsAndInfos);
+    }
     if (thereAreOpenPullRequests) {
-	  throw new Exception("There are open pull requests");
-	}
+      throw new Exception("There are open pull requests");
+    }
     if (noPullRequestsErrorsAndInfos.Errors.Any()) {
-	  throw new Exception(string.Join("\r\n", noPullRequestsErrorsAndInfos.Errors));
-	}
+      throw new Exception(string.Join("\r\n", noPullRequestsErrorsAndInfos.Errors));
+    }
   });
 
-Task("DebugBuild")
+Task("VerifyThatDevelopmentBranchDoesNotHaveOpenPullRequests")
+  .WithCriteria(() => currentGitBranch.FriendlyName != "master")
+  .Description("Verify that the master branch does not have open pull requests for the checked out development branch")
+  .Does(() => {
+    var noPullRequestsErrorsAndInfos = new ErrorsAndInfos();
+    bool thereAreOpenPullRequests;
+    thereAreOpenPullRequests = componentProvider.GitHubUtilities.HasOpenPullRequestForThisBranch(new Folder(repositoryFolder), noPullRequestsErrorsAndInfos);
+    if (thereAreOpenPullRequests) {
+      throw new Exception("There are open pull requests for this development branch");
+    }
+    if (noPullRequestsErrorsAndInfos.Errors.Any()) {
+      throw new Exception(string.Join("\r\n", noPullRequestsErrorsAndInfos.Errors));
+    }
+  });
+
+Task("VerifyThatPullRequestExistsForDevelopmentBranchHeadTip")
+  .WithCriteria(() => currentGitBranch.FriendlyName != "master")
+  .Description("Verify that the master branch does have a pull request for the checked out development branch head tip")
+  .Does(() => {
+    var noPullRequestsErrorsAndInfos = new ErrorsAndInfos();
+    bool thereArePullRequests;
+    thereArePullRequests = componentProvider.GitHubUtilities.HasPullRequestForThisBranchAndItsHeadTip(new Folder(repositoryFolder), noPullRequestsErrorsAndInfos);
+    if (!thereArePullRequests) {
+      throw new Exception("There is no pull request for this development branch and its head tip");
+    }
+    if (noPullRequestsErrorsAndInfos.Errors.Any()) {
+      throw new Exception(string.Join("\r\n", noPullRequestsErrorsAndInfos.Errors));
+    }
+  });
+  
+ Task("DebugBuild")
   .Description("Build solution in Debug and clean up intermediate output folder")
   .Does(() => {
     MSBuild(solution, settings 
       => settings
         .SetConfiguration("Debug")
         .SetVerbosity(Verbosity.Minimal)
-		.UseToolVersion(MSBuildToolVersion.NET46)
+        .UseToolVersion(MSBuildToolVersion.NET46)
         .WithProperty("Platform", "Any CPU")
         .WithProperty("OutDir", debugArtifactsFolder)
     );
@@ -168,11 +198,11 @@ Task("RunTestsOnDebugArtifacts")
   .Description("Run unit tests on Debug artifacts")
   .Does(() => {
     var msTestExe = componentProvider.ExecutableFinder.FindMsTestExe(toolsVersion);
-	if (msTestExe == "") {
+    if (msTestExe == "") {
       VSTest(debugArtifactsFolder + "/*.Test.dll", new VSTestSettings() { Logger = "trx", InIsolation = true });
-	} else {
+    } else {
       MSTest(debugArtifactsFolder + "/*.Test.dll", new MSTestSettings() { NoIsolation = false });
-	}
+    }
     CleanDirectory(testResultsFolder); 
     DeleteDirectory(testResultsFolder, new DeleteDirectorySettings { Recursive = false, Force = false });
   });
@@ -182,12 +212,12 @@ Task("CopyDebugArtifacts")
   .Description("Copy Debug artifacts to master Debug binaries folder")
   .Does(() => {
     var updater = new FolderUpdater();
-	var updaterErrorsAndInfos = new ErrorsAndInfos();
+    var updaterErrorsAndInfos = new ErrorsAndInfos();
     updater.UpdateFolder(new Folder(debugArtifactsFolder.Replace('/', '\\')), new Folder(masterDebugBinFolder.Replace('/', '\\')), 
       FolderUpdateMethod.Assemblies, updaterErrorsAndInfos);
     if (updaterErrorsAndInfos.Errors.Any()) {
-	  throw new Exception(string.Join("\r\n", updaterErrorsAndInfos.Errors));
-	}
+      throw new Exception(string.Join("\r\n", updaterErrorsAndInfos.Errors));
+    }
   });
 
 Task("ReleaseBuild")
@@ -197,7 +227,7 @@ Task("ReleaseBuild")
       => settings
         .SetConfiguration("Release")
         .SetVerbosity(Verbosity.Minimal)
-		.UseToolVersion(MSBuildToolVersion.NET46)
+        .UseToolVersion(MSBuildToolVersion.NET46)
         .WithProperty("Platform", "Any CPU")
         .WithProperty("OutDir", releaseArtifactsFolder)
     );
@@ -208,11 +238,11 @@ Task("RunTestsOnReleaseArtifacts")
   .Description("Run unit tests on Release artifacts")
   .Does(() => {
     var msTestExe = componentProvider.ExecutableFinder.FindMsTestExe(toolsVersion);
-	if (msTestExe == "") {
+    if (msTestExe == "") {
       VSTest(releaseArtifactsFolder + "/*.Test.dll", new VSTestSettings() { Logger = "trx", InIsolation = true });
-	} else {
+    } else {
       MSTest(releaseArtifactsFolder + "/*.Test.dll", new MSTestSettings() { NoIsolation = false });
-	}
+    }
     CleanDirectory(testResultsFolder); 
     DeleteDirectory(testResultsFolder, new DeleteDirectorySettings { Recursive = false, Force = false });
   });
@@ -222,20 +252,20 @@ Task("CopyReleaseArtifacts")
   .Description("Copy Release artifacts to master Release binaries folder")
   .Does(() => {
     var updater = new FolderUpdater();
-	var updaterErrorsAndInfos = new ErrorsAndInfos();
+    var updaterErrorsAndInfos = new ErrorsAndInfos();
     updater.UpdateFolder(new Folder(releaseArtifactsFolder.Replace('/', '\\')), new Folder(masterReleaseBinFolder.Replace('/', '\\')), 
       FolderUpdateMethod.Assemblies, updaterErrorsAndInfos);
     if (updaterErrorsAndInfos.Errors.Any()) {
-	  throw new Exception(string.Join("\r\n", updaterErrorsAndInfos.Errors));
-	}
+      throw new Exception(string.Join("\r\n", updaterErrorsAndInfos.Errors));
+    }
   });
 
 Task("CreateNuGetPackage")
   .WithCriteria(() => currentGitBranch.FriendlyName == "master")
   .Description("Create nuget package in the master Release binaries folder")
   .Does(() => {
-	var folder = new Folder(masterReleaseBinFolder);
-	if (!FolderExtensions.LastWrittenFileFullName(folder).EndsWith("nupkg")) {
+    var folder = new Folder(masterReleaseBinFolder);
+    if (!FolderExtensions.LastWrittenFileFullName(folder).EndsWith("nupkg")) {
       var nuGetPackSettings = new NuGetPackSettings {
         BasePath = "./src/", 
         OutputDirectory = masterReleaseBinFolder, 
@@ -244,20 +274,20 @@ Task("CreateNuGetPackage")
       };
 
       NuGetPack("./src/" + solutionId + ".csproj", nuGetPackSettings);
-	}
+    }
   });
 
 Task("PushNuGetPackage")
   .WithCriteria(() => currentGitBranch.FriendlyName == "master")
   .Description("Push nuget package")
   .Does(() => {
-	var nugetPackageToPushFinder = componentProvider.NugetPackageToPushFinder;
-	string packageFileFullName, feedUrl, apiKey;
-	var finderErrorsAndInfos = new ErrorsAndInfos();
-	nugetPackageToPushFinder.FindPackageToPush(new Folder(masterReleaseBinFolder.Replace('/', '\\')), new Folder(repositoryFolder.Replace('/', '\\')), solution.Replace('/', '\\'), out packageFileFullName, out feedUrl, out apiKey, finderErrorsAndInfos);
+    var nugetPackageToPushFinder = componentProvider.NugetPackageToPushFinder;
+    string packageFileFullName, feedUrl, apiKey;
+    var finderErrorsAndInfos = new ErrorsAndInfos();
+    nugetPackageToPushFinder.FindPackageToPush(new Folder(masterReleaseBinFolder.Replace('/', '\\')), new Folder(repositoryFolder.Replace('/', '\\')), solution.Replace('/', '\\'), out packageFileFullName, out feedUrl, out apiKey, finderErrorsAndInfos);
     if (finderErrorsAndInfos.Errors.Any()) {
-	  throw new Exception(string.Join("\r\n", finderErrorsAndInfos.Errors));
-	}
+      throw new Exception(string.Join("\r\n", finderErrorsAndInfos.Errors));
+    }
     if (packageFileFullName != "" && feedUrl != "" && apiKey != "") {
       Information("Pushing " + packageFileFullName + " to " + feedUrl + "..");
       NuGetPush(packageFileFullName, new NuGetPushSettings { Source = feedUrl });
@@ -288,7 +318,7 @@ Task("IgnoreOutdatedBuildCakePendingChanges")
 Task("IgnoreOutdatedBuildCakeAndDoNotPush")
   .Description("Default except check for outdated build.cake and except nuget push")
   .IsDependentOn("CleanRestorePullUpdateNuspec").IsDependentOn("VerifyThatThereAreNoUncommittedChanges").IsDependentOn("VerifyThatDevelopmentBranchIsAheadOfMaster")
-  .IsDependentOn("VerifyThatMasterBranchDoesNotHaveOpenPullRequests")
+  .IsDependentOn("VerifyThatMasterBranchDoesNotHaveOpenPullRequests").IsDependentOn("VerifyThatDevelopmentBranchDoesNotHaveOpenPullRequests").IsDependentOn("VerifyThatPullRequestExistsForDevelopmentBranchHeadTip")
   .IsDependentOn("BuildAndTestDebugAndRelease").IsDependentOn("CreateNuGetPackage")
   .Does(() => {
   });
@@ -297,7 +327,7 @@ Task("LittleThings")
   .Description("Default but do not build or test in debug or release, and do not create or push nuget package")
   .IsDependentOn("CleanRestorePullUpdateNuspec").IsDependentOn("UpdateBuildCake")
   .IsDependentOn("VerifyThatThereAreNoUncommittedChanges").IsDependentOn("VerifyThatDevelopmentBranchIsAheadOfMaster")
-  .IsDependentOn("VerifyThatMasterBranchDoesNotHaveOpenPullRequests")
+  .IsDependentOn("VerifyThatMasterBranchDoesNotHaveOpenPullRequests").IsDependentOn("VerifyThatDevelopmentBranchDoesNotHaveOpenPullRequests").IsDependentOn("VerifyThatPullRequestExistsForDevelopmentBranchHeadTip")
   .Does(() => {
   });
 
