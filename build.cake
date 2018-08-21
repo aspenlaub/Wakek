@@ -18,7 +18,6 @@ masterDebugBinFolder = MakeAbsolute(Directory(masterDebugBinFolder)).FullPath;
 masterReleaseBinFolder = MakeAbsolute(Directory(masterReleaseBinFolder)).FullPath;
 
 var target = Argument("target", "Default");
-var toolsVersion = 14;
 
 var artifactsFolder = MakeAbsolute(Directory("./artifacts")).FullPath;
 var debugArtifactsFolder = MakeAbsolute(Directory("./artifacts/Debug")).FullPath;
@@ -35,6 +34,8 @@ var solutionId = solution.Substring(solution.LastIndexOf('/') + 1).Replace(".sln
 var currentGitBranch = GitBranchCurrent(DirectoryPath.FromString("."));
 var latestBuildCakeUrl = "https://raw.githubusercontent.com/aspenlaub/Shatilaya/master/build.cake?g=" + System.Guid.NewGuid();
 var componentProvider = new ComponentProvider();
+var toolsVersion = componentProvider.ToolsVersionFinder.LatestAvailableToolsVersion();
+var toolsVersionEnum = toolsVersion >= 15 ? MSBuildToolVersion.VS2017 : MSBuildToolVersion.NET46;
 
 Setup(ctx => { 
   Information("Repository folder is: " + repositoryFolder);
@@ -45,6 +46,7 @@ Setup(ctx => {
   Information("Current GIT branch is: " + currentGitBranch.FriendlyName);
   Information("Build cake is: " + buildCakeFileName);
   Information("Latest build cake URL is: " + latestBuildCakeUrl);
+  Information("Tools version is: " + toolsVersion);
 });
 
 Task("UpdateBuildCake")
@@ -187,7 +189,7 @@ Task("VerifyThatPullRequestExistsForDevelopmentBranchHeadTip")
       => settings
         .SetConfiguration("Debug")
         .SetVerbosity(Verbosity.Minimal)
-        .UseToolVersion(MSBuildToolVersion.NET46)
+        .UseToolVersion(toolsVersionEnum)
         .WithProperty("Platform", "Any CPU")
         .WithProperty("OutDir", debugArtifactsFolder)
     );
@@ -227,7 +229,7 @@ Task("ReleaseBuild")
       => settings
         .SetConfiguration("Release")
         .SetVerbosity(Verbosity.Minimal)
-        .UseToolVersion(MSBuildToolVersion.NET46)
+        .UseToolVersion(toolsVersionEnum)
         .WithProperty("Platform", "Any CPU")
         .WithProperty("OutDir", releaseArtifactsFolder)
     );
