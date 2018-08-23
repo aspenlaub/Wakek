@@ -266,16 +266,38 @@ Task("CreateNuGetPackage")
   .WithCriteria(() => currentGitBranch.FriendlyName == "master")
   .Description("Create nuget package in the master Release binaries folder")
   .Does(() => {
+    var projectErrorsAndInfos = new ErrorsAndInfos();
+    var projectLogic = componentProvider.ProjectLogic;
+    var projectFactory = componentProvider.ProjectFactory;
+    var solutionFileFullName = (MakeAbsolute(DirectoryPath.FromString("./src")).FullPath + '\\' + solutionId + ".sln").Replace('/', '\\');
+    var project = projectFactory.Load(solutionFileFullName, solutionFileFullName.Replace(".sln", ".csproj"), projectErrorsAndInfos);
+    if (!projectLogic.DoAllNetStandardOrCoreConfigurationsHaveNuspecs(project)) {
+        throw new Exception("The release configuration needs a NuspecFile entry" + "\r\n" + solutionFileFullName + "\r\n" + solutionFileFullName.Replace(".sln", ".csproj"));
+    }
+    if (projectErrorsAndInfos.Errors.Any()) {
+        throw new Exception(string.Join("\r\n", projectErrorsAndInfos.Errors));
+    }
     var folder = new Folder(masterReleaseBinFolder);
     if (!FolderExtensions.LastWrittenFileFullName(folder).EndsWith("nupkg")) {
-      var nuGetPackSettings = new NuGetPackSettings {
-        BasePath = "./src/", 
-        OutputDirectory = masterReleaseBinFolder, 
-        IncludeReferencedProjects = true,
-        Properties = new Dictionary<string, string> { { "Configuration", "Release" } }
-      };
+      if (projectLogic.IsANetStandardOrCoreProject(project)) {
+          var settings = new DotNetCorePackSettings {
+              Configuration = "Release",
+              NoBuild = true, NoRestore = true,
+              IncludeSymbols = false,
+              OutputDirectory = masterReleaseBinFolder,
+          };
 
-      NuGetPack("./src/" + solutionId + ".csproj", nuGetPackSettings);
+          DotNetCorePack("./src/" + solutionId + ".csproj", settings);
+      } else {
+          var nuGetPackSettings = new NuGetPackSettings {
+            BasePath = "./src/", 
+            OutputDirectory = masterReleaseBinFolder, 
+            IncludeReferencedProjects = true,
+            Properties = new Dictionary<string, string> { { "Configuration", "Release" } }
+          };
+
+          NuGetPack("./src/" + solutionId + ".csproj", nuGetPackSettings);
+      }
     }
   });
 
@@ -296,9 +318,9 @@ Task("PushNuGetPackage")
     }
   });
 
-Task("CleanRestorePullUpdateNuspec")
+Task("CleanRestorePull")
   .Description("Clean, restore packages, pull changes, update nuspec")
-  .IsDependentOn("Clean").IsDependentOn("Pull").IsDependentOn("Restore").IsDependentOn("UpdateNuspec").Does(() => {
+  .IsDependentOn("Clean").IsDependentOn("Pull").IsDependentOn("Restore").Does(() => {
   });
 
 Task("BuildAndTestDebugAndRelease")
@@ -307,9 +329,15 @@ Task("BuildAndTestDebugAndRelease")
   .IsDependentOn("ReleaseBuild").IsDependentOn("RunTestsOnReleaseArtifacts").IsDependentOn("CopyReleaseArtifacts").Does(() => {
   });
 
+Task("IgnoreOutdatedBuildCakePendingChangesAndDoCreateOrPushPackage")
+  .Description("Default except check for outdated build.cake, except check for pending changes and except nuget create and push")
+  .IsDependentOn("CleanRestorePull").IsDependentOn("BuildAndTestDebugAndRelease")
+  .IsDependentOn("UpdateNuspec").Does(() => {
+  });
+
 Task("IgnoreOutdatedBuildCakePendingChangesAndDoNotPush")
   .Description("Default except check for outdated build.cake, except check for pending changes and except nuget push")
-  .IsDependentOn("CleanRestorePullUpdateNuspec").IsDependentOn("BuildAndTestDebugAndRelease").IsDependentOn("CreateNuGetPackage").Does(() => {
+  .IsDependentOn("IgnoreOutdatedBuildCakePendingChangesAndDoCreateOrPushPackage").IsDependentOn("CreateNuGetPackage").Does(() => {
   });
 
 Task("IgnoreOutdatedBuildCakePendingChanges")
@@ -319,22 +347,23 @@ Task("IgnoreOutdatedBuildCakePendingChanges")
 
 Task("IgnoreOutdatedBuildCakeAndDoNotPush")
   .Description("Default except check for outdated build.cake and except nuget push")
-  .IsDependentOn("CleanRestorePullUpdateNuspec").IsDependentOn("VerifyThatThereAreNoUncommittedChanges").IsDependentOn("VerifyThatDevelopmentBranchIsAheadOfMaster")
+  .IsDependentOn("CleanRestorePull").IsDependentOn("VerifyThatThereAreNoUncommittedChanges").IsDependentOn("VerifyThatDevelopmentBranchIsAheadOfMaster")
   .IsDependentOn("VerifyThatMasterBranchDoesNotHaveOpenPullRequests").IsDependentOn("VerifyThatDevelopmentBranchDoesNotHaveOpenPullRequests").IsDependentOn("VerifyThatPullRequestExistsForDevelopmentBranchHeadTip")
-  .IsDependentOn("BuildAndTestDebugAndRelease").IsDependentOn("CreateNuGetPackage")
+  .IsDependentOn("BuildAndTestDebugAndRelease").IsDependentOn("UpdateNuspec").IsDependentOn("CreateNuGetPackage")
   .Does(() => {
   });
 
 Task("LittleThings")
   .Description("Default but do not build or test in debug or release, and do not create or push nuget package")
-  .IsDependentOn("CleanRestorePullUpdateNuspec").IsDependentOn("UpdateBuildCake")
+  .IsDependentOn("CleanRestorePull").IsDependentOn("UpdateBuildCake")
   .IsDependentOn("VerifyThatThereAreNoUncommittedChanges").IsDependentOn("VerifyThatDevelopmentBranchIsAheadOfMaster")
   .IsDependentOn("VerifyThatMasterBranchDoesNotHaveOpenPullRequests").IsDependentOn("VerifyThatDevelopmentBranchDoesNotHaveOpenPullRequests").IsDependentOn("VerifyThatPullRequestExistsForDevelopmentBranchHeadTip")
   .Does(() => {
   });
 
 Task("Default")
-  .IsDependentOn("LittleThings").IsDependentOn("BuildAndTestDebugAndRelease").IsDependentOn("CreateNuGetPackage").IsDependentOn("PushNuGetPackage").Does(() => {
+  .IsDependentOn("LittleThings").IsDependentOn("BuildAndTestDebugAndRelease")
+  .IsDependentOn("UpdateNuspec").IsDependentOn("CreateNuGetPackage").IsDependentOn("PushNuGetPackage").Does(() => {
   });
 
 RunTarget(target);
