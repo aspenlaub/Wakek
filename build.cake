@@ -199,11 +199,18 @@ Task("VerifyThatPullRequestExistsForDevelopmentBranchHeadTip")
 Task("RunTestsOnDebugArtifacts")
   .Description("Run unit tests on Debug artifacts")
   .Does(() => {
-    var msTestExe = componentProvider.ExecutableFinder.FindMsTestExe(toolsVersion);
-    if (msTestExe == "") {
-      VSTest(debugArtifactsFolder + "/*.Test.dll", new VSTestSettings() { Logger = "trx", InIsolation = true });
-    } else {
+    var projectErrorsAndInfos = new ErrorsAndInfos();
+    var projectLogic = componentProvider.ProjectLogic;
+    var projectFactory = componentProvider.ProjectFactory;
+    var solutionFileFullName = (MakeAbsolute(DirectoryPath.FromString("./src")).FullPath + '\\' + solutionId + ".sln").Replace('/', '\\');
+    var project = projectFactory.Load(solutionFileFullName, solutionFileFullName.Replace(".sln", ".csproj"), projectErrorsAndInfos);
+    var vsTestExe = componentProvider.ExecutableFinder.FindVsTestExe(toolsVersion);
+    if (vsTestExe == "") {
       MSTest(debugArtifactsFolder + "/*.Test.dll", new MSTestSettings() { NoIsolation = false });
+    } else if (projectLogic.IsANetStandardOrCoreProject(project)) {
+      VSTest(debugArtifactsFolder + "/*.Test.dll", new VSTestSettings() { Logger = "trx", InIsolation = true, TestAdapterPath = "." });
+    } else {
+      VSTest(debugArtifactsFolder + "/*.Test.dll", new VSTestSettings() { Logger = "trx", InIsolation = true });
     }
     CleanDirectory(testResultsFolder); 
     DeleteDirectory(testResultsFolder, new DeleteDirectorySettings { Recursive = false, Force = false });
@@ -239,11 +246,18 @@ Task("ReleaseBuild")
 Task("RunTestsOnReleaseArtifacts")
   .Description("Run unit tests on Release artifacts")
   .Does(() => {
-    var msTestExe = componentProvider.ExecutableFinder.FindMsTestExe(toolsVersion);
-    if (msTestExe == "") {
-      VSTest(releaseArtifactsFolder + "/*.Test.dll", new VSTestSettings() { Logger = "trx", InIsolation = true });
-    } else {
+    var projectErrorsAndInfos = new ErrorsAndInfos();
+    var projectLogic = componentProvider.ProjectLogic;
+    var projectFactory = componentProvider.ProjectFactory;
+    var solutionFileFullName = (MakeAbsolute(DirectoryPath.FromString("./src")).FullPath + '\\' + solutionId + ".sln").Replace('/', '\\');
+    var project = projectFactory.Load(solutionFileFullName, solutionFileFullName.Replace(".sln", ".csproj"), projectErrorsAndInfos);
+    var vsTestExe = componentProvider.ExecutableFinder.FindVsTestExe(toolsVersion);
+    if (vsTestExe == "") {
       MSTest(releaseArtifactsFolder + "/*.Test.dll", new MSTestSettings() { NoIsolation = false });
+    } else if (projectLogic.IsANetStandardOrCoreProject(project)) {
+      VSTest(releaseArtifactsFolder + "/*.Test.dll", new VSTestSettings() { Logger = "trx", InIsolation = true, TestAdapterPath = "." });
+    } else {
+      VSTest(releaseArtifactsFolder + "/*.Test.dll", new VSTestSettings() { Logger = "trx", InIsolation = true });
     }
     CleanDirectory(testResultsFolder); 
     DeleteDirectory(testResultsFolder, new DeleteDirectorySettings { Recursive = false, Force = false });
