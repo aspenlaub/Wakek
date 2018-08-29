@@ -15,30 +15,27 @@
     <WarningLevel>4</WarningLevel>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <ApplicationIcon>aspenlaub.ico</ApplicationIcon>
+    <GenerateBuildInfoConfigFile>false</GenerateBuildInfoConfigFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\..\WakekBin\Debug\</OutputPath>
+    <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <IntermediateOutputPath>..\temp\obj\Debug\</IntermediateOutputPath>
-    <GenerateBuildInfoConfigFile>false</GenerateBuildInfoConfigFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\..\WakekBin\Release\</OutputPath>
+    <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <IntermediateOutputPath>..\temp\obj\Release\</IntermediateOutputPath>
     <UseVSHostingProcess>false</UseVSHostingProcess>
-    <GenerateBuildInfoConfigFile>false</GenerateBuildInfoConfigFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Aspenlaub.Net.GitHub.CSharp.Pegh, Version=1.0.6707.27731, Culture=neutral, processorArchitecture=MSIL">
