@@ -1,15 +1,18 @@
 #load "solution.cake"
 #addin nuget:?package=Newtonsoft.Json
-#addin nuget:?package=Cake.Git&version=0.18.0
-#addin nuget:?package=Nuget.Core
-#addin nuget:?package=DotNetZip&version=1.11.0
+#addin nuget:?package=Cake.Git
+#addin nuget:?package=Nuget.Client&loaddependencies=true
+#addin nuget:?package=Nuget.Protocol.Core.v3&loaddependencies=true
+#addin nuget:?package=Microsoft.Win32.Registry
+#addin nuget:?package=SharpZipLib.NETStandard
+#addin nuget:https://www.aspenlaub.net/nuget/?package=Aspenlaub.Net.GitHub.CSharp.PeghStandard
 #addin nuget:https://www.aspenlaub.net/nuget/?package=Aspenlaub.Net.GitHub.CSharp.Shatilaya
 
-using Folder = Aspenlaub.Net.GitHub.CSharp.Pegh.Entities.Folder;
-using FolderUpdater = Aspenlaub.Net.GitHub.CSharp.Pegh.Components.FolderUpdater;
-using FolderUpdateMethod = Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces.FolderUpdateMethod;
-using ErrorsAndInfos = Aspenlaub.Net.GitHub.CSharp.Pegh.Entities.ErrorsAndInfos;
-using FolderExtensions = Aspenlaub.Net.GitHub.CSharp.Pegh.FolderExtensions;
+using Folder = Aspenlaub.Net.GitHub.CSharp.PeghStandard.Entities.Folder;
+using FolderUpdater = Aspenlaub.Net.GitHub.CSharp.PeghStandard.Components.FolderUpdater;
+using FolderUpdateMethod = Aspenlaub.Net.GitHub.CSharp.PeghStandard.Interfaces.FolderUpdateMethod;
+using ErrorsAndInfos = Aspenlaub.Net.GitHub.CSharp.PeghStandard.Entities.ErrorsAndInfos;
+using FolderExtensions = Aspenlaub.Net.GitHub.CSharp.PeghStandard.Extensions.FolderExtensions;
 using Regex = System.Text.RegularExpressions.Regex;
 using ComponentProvider = Aspenlaub.Net.GitHub.CSharp.Shatilaya.ComponentProvider;
 using DeveloperSettingsSecret = Aspenlaub.Net.GitHub.CSharp.Shatilaya.Entities.DeveloperSettingsSecret;
@@ -100,10 +103,10 @@ Task("Restore")
 
 Task("Pull")
   .Description("Pull latest changes")
-  .Does(() => {
+  .Does(async () => {
     var developerSettingsSecret = new DeveloperSettingsSecret();
     var pullErrorsAndInfos = new ErrorsAndInfos();
-    var developerSettings = componentProvider.PeghComponentProvider.SecretRepository.Get(developerSettingsSecret, pullErrorsAndInfos);
+    var developerSettings = await componentProvider.PeghComponentProvider.SecretRepository.GetAsync(developerSettingsSecret, pullErrorsAndInfos);
     if (pullErrorsAndInfos.Errors.Any()) {
       throw new Exception(string.Join("\r\n", pullErrorsAndInfos.Errors));
     }
@@ -113,11 +116,12 @@ Task("Pull")
 
 Task("UpdateNuspec")
   .Description("Update nuspec if necessary")
-  .Does(() => {
+  .Does(async () => {
+    var solutionFileFullName = solution.Replace('/', '\\');
     var nuSpecFile = solutionFileFullName.Replace(".sln", ".nuspec");
     var nuSpecErrorsAndInfos = new ErrorsAndInfos();
     var headTipIdSha = componentProvider.GitUtilities.HeadTipIdSha(new Folder(repositoryFolder));
-    componentProvider.NuSpecCreator.CreateNuSpecFileIfRequiredOrPresent(true, solutionFileFullName, new List<string> { headTipIdSha }, nuSpecErrorsAndInfos);
+    await componentProvider.NuSpecCreator.CreateNuSpecFileIfRequiredOrPresentAsync(true, solutionFileFullName, new List<string> { headTipIdSha }, nuSpecErrorsAndInfos);
     if (nuSpecErrorsAndInfos.Errors.Any()) {
       throw new Exception(string.Join("\r\n", nuSpecErrorsAndInfos.Errors));
     }
@@ -145,13 +149,13 @@ Task("VerifyThatDevelopmentBranchIsAheadOfMaster")
 Task("VerifyThatMasterBranchDoesNotHaveOpenPullRequests")
   .WithCriteria(() => currentGitBranch.FriendlyName == "master")
   .Description("Verify that the master branch does not have open pull requests")
-  .Does(() => {
+  .Does(async () => {
     var noPullRequestsErrorsAndInfos = new ErrorsAndInfos();
     bool thereAreOpenPullRequests;
     if (solutionSpecialSettingsDictionary.ContainsKey("PullRequestsToIgnore")) {
-      thereAreOpenPullRequests = componentProvider.GitHubUtilities.HasOpenPullRequest(new Folder(repositoryFolder), solutionSpecialSettingsDictionary["PullRequestsToIgnore"], noPullRequestsErrorsAndInfos);
+      thereAreOpenPullRequests = await componentProvider.GitHubUtilities.HasOpenPullRequestAsync(new Folder(repositoryFolder), solutionSpecialSettingsDictionary["PullRequestsToIgnore"], noPullRequestsErrorsAndInfos);
     } else {
-      thereAreOpenPullRequests = componentProvider.GitHubUtilities.HasOpenPullRequest(new Folder(repositoryFolder), noPullRequestsErrorsAndInfos);
+      thereAreOpenPullRequests = await componentProvider.GitHubUtilities.HasOpenPullRequestAsync(new Folder(repositoryFolder), noPullRequestsErrorsAndInfos);
     }
     if (thereAreOpenPullRequests) {
       throw new Exception("There are open pull requests");
@@ -164,10 +168,10 @@ Task("VerifyThatMasterBranchDoesNotHaveOpenPullRequests")
 Task("VerifyThatDevelopmentBranchDoesNotHaveOpenPullRequests")
   .WithCriteria(() => currentGitBranch.FriendlyName != "master")
   .Description("Verify that the master branch does not have open pull requests for the checked out development branch")
-  .Does(() => {
+  .Does(async () => {
     var noPullRequestsErrorsAndInfos = new ErrorsAndInfos();
     bool thereAreOpenPullRequests;
-    thereAreOpenPullRequests = componentProvider.GitHubUtilities.HasOpenPullRequestForThisBranch(new Folder(repositoryFolder), noPullRequestsErrorsAndInfos);
+    thereAreOpenPullRequests = await componentProvider.GitHubUtilities.HasOpenPullRequestForThisBranchAsync(new Folder(repositoryFolder), noPullRequestsErrorsAndInfos);
     if (thereAreOpenPullRequests) {
       throw new Exception("There are open pull requests for this development branch");
     }
@@ -179,10 +183,10 @@ Task("VerifyThatDevelopmentBranchDoesNotHaveOpenPullRequests")
 Task("VerifyThatPullRequestExistsForDevelopmentBranchHeadTip")
   .WithCriteria(() => currentGitBranch.FriendlyName != "master")
   .Description("Verify that the master branch does have a pull request for the checked out development branch head tip")
-  .Does(() => {
+  .Does(async () => {
     var noPullRequestsErrorsAndInfos = new ErrorsAndInfos();
     bool thereArePullRequests;
-    thereArePullRequests = componentProvider.GitHubUtilities.HasPullRequestForThisBranchAndItsHeadTip(new Folder(repositoryFolder), noPullRequestsErrorsAndInfos);
+    thereArePullRequests = await componentProvider.GitHubUtilities.HasPullRequestForThisBranchAndItsHeadTipAsync(new Folder(repositoryFolder), noPullRequestsErrorsAndInfos);
     if (!thereArePullRequests) {
       throw new Exception("There is no pull request for this development branch and its head tip");
     }
@@ -191,7 +195,7 @@ Task("VerifyThatPullRequestExistsForDevelopmentBranchHeadTip")
     }
   });
   
- Task("DebugBuild")
+Task("DebugBuild")
   .Description("Build solution in Debug")
   .Does(() => {
     MSBuild(solution, settings 
@@ -234,7 +238,7 @@ Task("RunTestsOnDebugArtifacts")
     CleanDirectory(testResultsFolder); 
     DeleteDirectory(testResultsFolder, new DeleteDirectorySettings { Recursive = false, Force = false });
   });
-
+  
 Task("CopyDebugArtifacts")
   .WithCriteria(() => currentGitBranch.FriendlyName == "master")
   .Description("Copy Debug artifacts to master Debug binaries folder")
@@ -313,50 +317,54 @@ Task("CreateNuGetPackage")
   .WithCriteria(() => currentGitBranch.FriendlyName == "master")
   .Description("Create nuget package in the master Release binaries folder")
   .Does(() => {
-        if (!projectLogic.DoAllNetStandardOrCoreConfigurationsHaveNuspecs(mainProject)) {
-            throw new Exception("The release configuration needs a NuspecFile entry" + "\r\n" + solutionFileFullName + "\r\n" + solutionFileFullName.Replace(".sln", ".csproj"));
-        }
-        var folder = new Folder(masterReleaseBinFolder);
-        var lastWrittenFileFullName = FolderExtensions.LastWrittenFileFullName(folder);
-        if (lastWrittenFileFullName == null) {
-          Error("Could not find last written file in " + masterReleaseBinFolder);
-        } else if (!lastWrittenFileFullName.EndsWith("nupkg")) {
-          if (projectLogic.IsANetStandardOrCoreProject(mainProject)) {
-              var netCorePackSettings = new DotNetCorePackSettings {
-                  Configuration = "Release",
-                  NoBuild = true, NoRestore = true,
-                  IncludeSymbols = false,
-                  OutputDirectory = masterReleaseBinFolder,
-              };
+    var projectErrorsAndInfos = new ErrorsAndInfos();
+    var projectLogic = componentProvider.ProjectLogic;
+    var projectFactory = componentProvider.ProjectFactory;
+    var solutionFileFullName = (MakeAbsolute(DirectoryPath.FromString("./src")).FullPath + '\\' + solutionId + ".sln").Replace('/', '\\');
+    var project = projectFactory.Load(solutionFileFullName, solutionFileFullName.Replace(".sln", ".csproj"), projectErrorsAndInfos);
+    if (!projectLogic.DoAllNetStandardOrCoreConfigurationsHaveNuspecs(project)) {
+        throw new Exception("The release configuration needs a NuspecFile entry" + "\r\n" + solutionFileFullName + "\r\n" + solutionFileFullName.Replace(".sln", ".csproj"));
+    }
+    if (projectErrorsAndInfos.Errors.Any()) {
+        throw new Exception(string.Join("\r\n", projectErrorsAndInfos.Errors));
+    }
+    var folder = new Folder(masterReleaseBinFolder);
+    if (!FolderExtensions.LastWrittenFileFullName(folder).EndsWith("nupkg")) {
+      if (projectLogic.IsANetStandardOrCoreProject(project)) {
+          var settings = new DotNetCorePackSettings {
+              Configuration = "Release",
+              NoBuild = true, NoRestore = true,
+              IncludeSymbols = false,
+              OutputDirectory = masterReleaseBinFolder,
+          };
 
-              DotNetCorePack("./src/" + solutionId + ".csproj", netCorePackSettings);
-          } else {
-              var nuGetPackSettings = new NuGetPackSettings {
-                BasePath = "./src/", 
-                OutputDirectory = masterReleaseBinFolder, 
-                IncludeReferencedProjects = true,
-                Properties = new Dictionary<string, string> { { "Configuration", "Release" } }
-              };
+          DotNetCorePack("./src/" + solutionId + ".csproj", settings);
+      } else {
+          var nuGetPackSettings = new NuGetPackSettings {
+            BasePath = "./src/", 
+            OutputDirectory = masterReleaseBinFolder, 
+            IncludeReferencedProjects = true,
+            Properties = new Dictionary<string, string> { { "Configuration", "Release" } }
+          };
 
-              NuGetPack("./src/" + solutionId + ".csproj", nuGetPackSettings);
-          }
-        }
+          NuGetPack("./src/" + solutionId + ".csproj", nuGetPackSettings);
+      }
+    }
   });
 
 Task("PushNuGetPackage")
   .WithCriteria(() => currentGitBranch.FriendlyName == "master")
   .Description("Push nuget package")
-  .Does(() => {
+  .Does(async () => {
     var nugetPackageToPushFinder = componentProvider.NugetPackageToPushFinder;
-    string packageFileFullName, feedUrl, apiKey;
     var finderErrorsAndInfos = new ErrorsAndInfos();
-    nugetPackageToPushFinder.FindPackageToPush(new Folder(masterReleaseBinFolder.Replace('/', '\\')), new Folder(repositoryFolder.Replace('/', '\\')), solution.Replace('/', '\\'), out packageFileFullName, out feedUrl, out apiKey, finderErrorsAndInfos);
+    var packageToPush = await nugetPackageToPushFinder.FindPackageToPushAsync(new Folder(masterReleaseBinFolder.Replace('/', '\\')), new Folder(repositoryFolder.Replace('/', '\\')), solution.Replace('/', '\\'), finderErrorsAndInfos);
     if (finderErrorsAndInfos.Errors.Any()) {
       throw new Exception(string.Join("\r\n", finderErrorsAndInfos.Errors));
     }
-    if (packageFileFullName != "" && feedUrl != "" && apiKey != "") {
-      Information("Pushing " + packageFileFullName + " to " + feedUrl + "..");
-      NuGetPush(packageFileFullName, new NuGetPushSettings { Source = feedUrl });
+    if (packageToPush != null && !string.IsNullOrEmpty(packageToPush.PackageFileFullName) && !string.IsNullOrEmpty(packageToPush.FeedUrl) && !string.IsNullOrEmpty(packageToPush.ApiKey)) {
+      Information("Pushing " + packageToPush.PackageFileFullName + " to " + packageToPush.FeedUrl + "..");
+      NuGetPush(packageToPush.PackageFileFullName, new NuGetPushSettings { Source = packageToPush.FeedUrl });
     }
   });
 
