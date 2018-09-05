@@ -213,7 +213,7 @@ Task("RunTestsOnDebugArtifacts")
       var projectFiles = GetFiles("./src/**/*Test.csproj");
       foreach(var projectFile in projectFiles) {
         if (projectLogic.IsANetStandardOrCoreProject(mainProject)) {
-          var dotNetCoreTestSettings = new DotNetCoreTestSettings { Configuration = "Debug" };
+          var dotNetCoreTestSettings = new DotNetCoreTestSettings { Configuration = "Debug", NoRestore = true, NoBuild = true };
           DotNetCoreTest(projectFile.FullPath, dotNetCoreTestSettings);
         } else {
            Information("Running tests in " + projectFile.FullPath);
@@ -262,10 +262,6 @@ Task("ReleaseBuild")
         .UseToolVersion(toolsVersionEnum)
         .WithProperty("Platform", "Any CPU")
     );
-    foreach(var objFolder in System.IO.Directory.GetDirectories(MakeAbsolute(DirectoryPath.FromString("./src")).FullPath, "obj", SearchOption.AllDirectories).ToList()) {
-        CleanDirectory(objFolder); 
-        DeleteDirectory(objFolder, new DeleteDirectorySettings { Recursive = false, Force = false });
-    }
   });
 
 Task("RunTestsOnReleaseArtifacts")
@@ -274,7 +270,7 @@ Task("RunTestsOnReleaseArtifacts")
       var projectFiles = GetFiles("./src/**/*Test.csproj");
       foreach(var projectFile in projectFiles) {
         if (projectLogic.IsANetStandardOrCoreProject(mainProject)) {
-          var dotNetCoreTestSettings = new DotNetCoreTestSettings { Configuration = "Release" };
+          var dotNetCoreTestSettings = new DotNetCoreTestSettings { Configuration = "Release", NoRestore = true, NoBuild = true };
           DotNetCoreTest(projectFile.FullPath, dotNetCoreTestSettings);
         } else {
            Information("Running tests in " + projectFile.FullPath);
@@ -368,6 +364,15 @@ Task("PushNuGetPackage")
     }
   });
 
+Task("CleanObjectFolders")
+  .Description("Clean object folders")
+  .Does(() => {
+    foreach(var objFolder in System.IO.Directory.GetDirectories(MakeAbsolute(DirectoryPath.FromString("./src")).FullPath, "obj", SearchOption.AllDirectories).ToList()) {
+        CleanDirectory(objFolder); 
+        DeleteDirectory(objFolder, new DeleteDirectorySettings { Recursive = false, Force = false });
+    }
+  });
+
 Task("CleanRestorePull")
   .Description("Clean, restore packages, pull changes, update nuspec")
   .IsDependentOn("Clean").IsDependentOn("Pull").IsDependentOn("Restore").Does(() => {
@@ -392,7 +397,7 @@ Task("IgnoreOutdatedBuildCakePendingChangesAndDoNotPush")
 
 Task("IgnoreOutdatedBuildCakePendingChanges")
   .Description("Default except check for outdated build.cake and except check for pending changes")
-  .IsDependentOn("IgnoreOutdatedBuildCakePendingChangesAndDoNotPush").IsDependentOn("PushNuGetPackage").Does(() => {
+  .IsDependentOn("IgnoreOutdatedBuildCakePendingChangesAndDoNotPush").IsDependentOn("PushNuGetPackage").IsDependentOn("CleanObjectFolders").Does(() => {
   });
 
 Task("IgnoreOutdatedBuildCakeAndDoNotPush")
@@ -413,7 +418,7 @@ Task("LittleThings")
 
 Task("Default")
   .IsDependentOn("LittleThings").IsDependentOn("BuildAndTestDebugAndRelease")
-  .IsDependentOn("UpdateNuspec").IsDependentOn("CreateNuGetPackage").IsDependentOn("PushNuGetPackage").Does(() => {
+  .IsDependentOn("UpdateNuspec").IsDependentOn("CreateNuGetPackage").IsDependentOn("PushNuGetPackage").IsDependentOn("CleanObjectFolders").Does(() => {
   });
 
 RunTarget(target);
