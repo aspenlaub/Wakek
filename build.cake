@@ -43,10 +43,6 @@ var projectErrorsAndInfos = new ErrorsAndInfos();
 var projectLogic = componentProvider.ProjectLogic;
 var projectFactory = componentProvider.ProjectFactory;
 var solutionFileFullName = (MakeAbsolute(DirectoryPath.FromString("./src")).FullPath + '\\' + solutionId + ".sln").Replace('/', '\\');
-var mainProject = projectFactory.Load(solutionFileFullName, solutionFileFullName.Replace(".sln", ".csproj"), projectErrorsAndInfos);
-if (projectErrorsAndInfos.Errors.Any()) {
-    throw new Exception(string.Join("\r\n", projectErrorsAndInfos.Errors));
-}
 
 Setup(ctx => { 
   Information("Repository folder is: " + repositoryFolder);
@@ -212,15 +208,15 @@ Task("RunTestsOnDebugArtifacts")
   .Does(() => {
       var projectFiles = GetFiles("./src/**/*Test.csproj");
       foreach(var projectFile in projectFiles) {
-        if (projectLogic.IsANetStandardOrCoreProject(mainProject)) {
+        var project = projectFactory.Load(solutionFileFullName, projectFile.FullPath, projectErrorsAndInfos);
+        if (projectErrorsAndInfos.Errors.Any()) {
+            throw new Exception(string.Join("\r\n", projectErrorsAndInfos.Errors));
+        }
+        Information("Running tests in " + projectFile.FullPath);
+        if (projectLogic.IsANetStandardOrCoreProject(project)) {
           var dotNetCoreTestSettings = new DotNetCoreTestSettings { Configuration = "Debug", NoRestore = true, NoBuild = true };
           DotNetCoreTest(projectFile.FullPath, dotNetCoreTestSettings);
         } else {
-           Information("Running tests in " + projectFile.FullPath);
-           var project = projectFactory.Load(solutionFileFullName, projectFile.FullPath, projectErrorsAndInfos);
-           if (projectErrorsAndInfos.Errors.Any()) {
-              throw new Exception(string.Join("\r\n", projectErrorsAndInfos.Errors));
-          }
           var outputPath = project.PropertyGroups.Where(g => g.Condition.Contains("Debug")).Select(g => g.OutputPath).Where(p => p != "").First();
           outputPath = (outputPath.Contains(':') ? "" : projectFile.FullPath.Substring(0, projectFile.FullPath.LastIndexOf('/') + 1)) + outputPath.Replace('\\', '/');
           if (!outputPath.EndsWith("/")) { outputPath = outputPath + '/'; }
@@ -228,8 +224,6 @@ Task("RunTestsOnDebugArtifacts")
           var vsTestExe = componentProvider.ExecutableFinder.FindVsTestExe(toolsVersion);
           if (vsTestExe == "") {
             MSTest(outputPath + "*.Test.dll", new MSTestSettings() { NoIsolation = false });
-          } else if (projectLogic.IsANetStandardOrCoreProject(mainProject)) {
-            VSTest(outputPath + "*.Test.dll", new VSTestSettings() { Logger = "trx", InIsolation = true, TestAdapterPath = "." });
           } else {
             VSTest(outputPath + "*.Test.dll", new VSTestSettings() { Logger = "trx", InIsolation = true });
           }
@@ -269,15 +263,15 @@ Task("RunTestsOnReleaseArtifacts")
   .Does(() => {
       var projectFiles = GetFiles("./src/**/*Test.csproj");
       foreach(var projectFile in projectFiles) {
-        if (projectLogic.IsANetStandardOrCoreProject(mainProject)) {
+        var project = projectFactory.Load(solutionFileFullName, projectFile.FullPath, projectErrorsAndInfos);
+        if (projectErrorsAndInfos.Errors.Any()) {
+            throw new Exception(string.Join("\r\n", projectErrorsAndInfos.Errors));
+        }
+        Information("Running tests in " + projectFile.FullPath);
+        if (projectLogic.IsANetStandardOrCoreProject(project)) {
           var dotNetCoreTestSettings = new DotNetCoreTestSettings { Configuration = "Release", NoRestore = true, NoBuild = true };
           DotNetCoreTest(projectFile.FullPath, dotNetCoreTestSettings);
         } else {
-           Information("Running tests in " + projectFile.FullPath);
-           var project = projectFactory.Load(solutionFileFullName, projectFile.FullPath, projectErrorsAndInfos);
-           if (projectErrorsAndInfos.Errors.Any()) {
-              throw new Exception(string.Join("\r\n", projectErrorsAndInfos.Errors));
-          }
           var outputPath = project.PropertyGroups.Where(g => g.Condition.Contains("Release")).Select(g => g.OutputPath).Where(p => p != "").First();
           outputPath = (outputPath.Contains(':') ? "" : projectFile.FullPath.Substring(0, projectFile.FullPath.LastIndexOf('/') + 1)) + outputPath.Replace('\\', '/');
           if (!outputPath.EndsWith("/")) { outputPath = outputPath + '/'; }
@@ -285,8 +279,6 @@ Task("RunTestsOnReleaseArtifacts")
           var vsTestExe = componentProvider.ExecutableFinder.FindVsTestExe(toolsVersion);
           if (vsTestExe == "") {
             MSTest(outputPath + "*.Test.dll", new MSTestSettings() { NoIsolation = false });
-          } else if (projectLogic.IsANetStandardOrCoreProject(mainProject)) {
-            VSTest(outputPath + "*.Test.dll", new VSTestSettings() { Logger = "trx", InIsolation = true, TestAdapterPath = "." });
           } else {
             VSTest(outputPath + "*.Test.dll", new VSTestSettings() { Logger = "trx", InIsolation = true });
           }
