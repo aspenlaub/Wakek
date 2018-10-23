@@ -34,55 +34,42 @@
   <ItemGroup>
     <Reference Include="Aspenlaub.Net.GitHub.CSharp.Pegh, Version=1.0.6707.27731, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Aspenlaub.Net.GitHub.CSharp.Vishizhukel.1.0.6708.13285\lib\net46\Aspenlaub.Net.GitHub.CSharp.Pegh.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="Aspenlaub.Net.GitHub.CSharp.Pegh.Components, Version=1.0.6707.27731, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Aspenlaub.Net.GitHub.CSharp.Vishizhukel.1.0.6708.13285\lib\net46\Aspenlaub.Net.GitHub.CSharp.Pegh.Components.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="Aspenlaub.Net.GitHub.CSharp.Pegh.Entities, Version=1.0.6707.27731, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Aspenlaub.Net.GitHub.CSharp.Vishizhukel.1.0.6708.13285\lib\net46\Aspenlaub.Net.GitHub.CSharp.Pegh.Entities.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="Aspenlaub.Net.GitHub.CSharp.Pegh.GUI, Version=1.0.6707.27732, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Aspenlaub.Net.GitHub.CSharp.Vishizhukel.1.0.6708.13285\lib\net46\Aspenlaub.Net.GitHub.CSharp.Pegh.GUI.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces, Version=1.0.6707.27731, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Aspenlaub.Net.GitHub.CSharp.Vishizhukel.1.0.6708.13285\lib\net46\Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="Aspenlaub.Net.GitHub.CSharp.Pegh.SampleEntities, Version=1.0.6707.27731, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Aspenlaub.Net.GitHub.CSharp.Vishizhukel.1.0.6708.13285\lib\net46\Aspenlaub.Net.GitHub.CSharp.Pegh.SampleEntities.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="Aspenlaub.Net.GitHub.CSharp.Vishizhukel, Version=1.0.6708.13285, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Aspenlaub.Net.GitHub.CSharp.Vishizhukel.1.0.6708.13285\lib\net46\Aspenlaub.Net.GitHub.CSharp.Vishizhukel.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Core, Version=1.0.6708.13285, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Aspenlaub.Net.GitHub.CSharp.Vishizhukel.1.0.6708.13285\lib\net46\Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Core.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Entities, Version=1.0.6708.13285, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Aspenlaub.Net.GitHub.CSharp.Vishizhukel.1.0.6708.13285\lib\net46\Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Entities.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="Aspenlaub.Net.GitHub.CSharp.Vishizhukel.GUI, Version=1.0.6708.13285, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Aspenlaub.Net.GitHub.CSharp.Vishizhukel.1.0.6708.13285\lib\net46\Aspenlaub.Net.GitHub.CSharp.Vishizhukel.GUI.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Interfaces, Version=1.0.6708.13285, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Aspenlaub.Net.GitHub.CSharp.Vishizhukel.1.0.6708.13285\lib\net46\Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Interfaces.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Interfaces.Basic, Version=1.0.6708.13285, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Aspenlaub.Net.GitHub.CSharp.Vishizhukel.1.0.6708.13285\lib\net46\Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Interfaces.Basic.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="Aspenlaub.Net.GitHub.CSharp.Vishizhukel.IO, Version=1.0.6708.13285, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Aspenlaub.Net.GitHub.CSharp.Vishizhukel.1.0.6708.13285\lib\net46\Aspenlaub.Net.GitHub.CSharp.Vishizhukel.IO.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="CsvHelper, Version=7.0.0.0, Culture=neutral, PublicKeyToken=8c4959082be5c823, processorArchitecture=MSIL">
       <HintPath>..\packages\CsvHelper.7.1.1\lib\net45\CsvHelper.dll</HintPath>
