@@ -43,7 +43,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
 
             var secret = new SecretBenchmarkDefinitions();
             var errorsAndInfos = new ErrorsAndInfos();
-            BenchmarkDefinitions = WakekComponentProvider.PeghComponentProvider.SecretRepository.Get(secret, errorsAndInfos);
+            BenchmarkDefinitions = WakekComponentProvider.PeghComponentProvider.SecretRepository.GetAsync(secret, errorsAndInfos).Result;
             if (errorsAndInfos.AnyErrors()) {
                 throw new Exception(string.Join("\r\n", errorsAndInfos.Errors));
             }
@@ -107,8 +107,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
             handled = true;
             switch (feedback.Type) {
                 case FeedbackType.ImportantMessage: {
-                    Type feedbackSerializedObjectType;
-                    WakekComponentProvider.XmlSerializedObjectReader.IdentifyType(feedback.Message, out handled, out feedbackSerializedObjectType);
+                    WakekComponentProvider.XmlSerializedObjectReader.IdentifyType(feedback.Message, out handled, out var feedbackSerializedObjectType);
                     if (!handled) { return; }
 
                     if (feedbackSerializedObjectType == typeof(BenchmarkExecution)) {

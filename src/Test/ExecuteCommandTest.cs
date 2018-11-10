@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Aspenlaub.Net.GitHub.CSharp.Pegh.Helpers;
 using Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Application;
 using Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Interfaces.Application;
 using Aspenlaub.Net.GitHub.CSharp.Wakek.Application;
@@ -45,10 +46,10 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Test {
             await WakekApplication.ApplicationCommandController.Execute(typeof(ExecuteCommand));
             Assert.AreEqual(1, WakekApplication.BenchmarkExecutions.Count);
             var executionGuid = WakekApplication.BenchmarkExecutions[0].Guid;
-            var states = await GetStatesForExecution(executionGuid, 1);
+            var states = GetStatesForExecution(executionGuid, 1);
             var state = states[0] as BenchmarkExecutionState;
             Assert.IsNotNull(state);
-            var displayedStates = await GetDisplayedStatesForExecution(1);
+            var displayedStates = GetDisplayedStatesForExecution(1);
             var displayedState = displayedStates[0];
             Assert.AreEqual(WakekApplication.SelectedBenchmarkDefinition.Description, displayedState.BenchmarkDescription);
             Assert.AreEqual(state.ExecutingForHowManySeconds, displayedState.ExecutingForHowManySeconds);
@@ -58,18 +59,17 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Test {
             Assert.AreEqual(state.RemoteRequiringForHowManySeconds, displayedState.RemoteRequiringForHowManySeconds);
             Assert.AreEqual(state.Finished, displayedState.Finished);
 
-            bool handled;
             var feedback = new FeedbackToApplication { Type = FeedbackType.ImportantMessage, Message = WakekApplication.WakekComponentProvider.PeghComponentProvider.XmlSerializer.Serialize(state) };
-            WakekApplication.ApplicationFeedbackHandler(feedback, out handled);
+            WakekApplication.ApplicationFeedbackHandler(feedback, out var handled);
             Assert.IsTrue(handled);
-            await GetStatesForExecution(executionGuid, 1);
+            GetStatesForExecution(executionGuid, 1);
 
             var execution = WakekApplication.WakekComponentProvider.BenchmarkExecutionFactory.CreateBenchmarkExecution(WakekApplication.BenchmarkDefinitions[0]);
             state = WakekApplication.WakekComponentProvider.BenchmarkExecutionFactory.CreateBenchmarkExecutionState(execution, 1) as BenchmarkExecutionState;
             feedback = new FeedbackToApplication { Type = FeedbackType.ImportantMessage, Message = WakekApplication.WakekComponentProvider.PeghComponentProvider.XmlSerializer.Serialize(state) };
             WakekApplication.ApplicationFeedbackHandler(feedback, out handled);
             Assert.IsTrue(handled);
-            await GetStatesForExecution(2);
+            GetStatesForExecution(2);
         }
 
         [TestMethod]
@@ -81,28 +81,28 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Test {
             Assert.AreEqual(1, WakekApplication.BenchmarkExecutions.Count);
             var executionGuid = WakekApplication.BenchmarkExecutions[0].Guid;
 
-            var states = await GetStatesForExecution(executionGuid, 2);
+            var states = GetStatesForExecution(executionGuid, 2);
             Assert.IsTrue(states.Any(s => s.ThreadNumber == 1));
             Assert.IsTrue(states.Any(s => s.ThreadNumber == 2));
 
-            var displayedStates = await GetDisplayedStatesForExecution(1);
+            var displayedStates = GetDisplayedStatesForExecution(1);
             Assert.AreEqual(WakekApplication.SelectedBenchmarkDefinition.Description, displayedStates[0].BenchmarkDescription);
         }
 
-        private async Task<IList<IBenchmarkExecutionState>> GetStatesForExecution(int expectedStates) {
-            return await GetStatesForExecution("", expectedStates);
+        private IList<IBenchmarkExecutionState> GetStatesForExecution(int expectedStates) {
+            return GetStatesForExecution("", expectedStates);
         }
 
-        private async Task<IList<IBenchmarkExecutionState>> GetStatesForExecution(string executionGuid, int expectedStates) {
+        private IList<IBenchmarkExecutionState> GetStatesForExecution(string executionGuid, int expectedStates) {
             IList<IBenchmarkExecutionState> states = null;
-            await Wait.Until(() => (states = WakekApplication.GetObservableCollectionSnapshot(s => s.BenchmarkExecutionGuid == executionGuid || executionGuid == "", () => WakekApplication.BenchmarkExecutionStates)).Count == expectedStates, TimeSpan.FromSeconds(1));
+            Wait.Until(() => (states = WakekApplication.GetObservableCollectionSnapshot(s => s.BenchmarkExecutionGuid == executionGuid || executionGuid == "", () => WakekApplication.BenchmarkExecutionStates)).Count == expectedStates, TimeSpan.FromSeconds(1));
             Assert.AreEqual(expectedStates, states.Count);
             return states;
         }
 
-        private async Task<IList<IDisplayedBenchmarkExecutionState>> GetDisplayedStatesForExecution(int expectedStates) {
+        private IList<IDisplayedBenchmarkExecutionState> GetDisplayedStatesForExecution(int expectedStates) {
             IList<IDisplayedBenchmarkExecutionState> states = null;
-            await Wait.Until(() => (states = WakekApplication.GetObservableCollectionSnapshot(s => true, () => WakekApplication.DisplayedBenchmarkExecutionStates)).Count == expectedStates, TimeSpan.FromSeconds(1));
+            Wait.Until(() => (states = WakekApplication.GetObservableCollectionSnapshot(s => true, () => WakekApplication.DisplayedBenchmarkExecutionStates)).Count == expectedStates, TimeSpan.FromSeconds(1));
             Assert.AreEqual(expectedStates, states.Count);
             return states;
         }
