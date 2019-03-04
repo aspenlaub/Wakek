@@ -76,16 +76,16 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Aspenlaub.Net.GitHub.CSharp.Pegh">
-      <Version>1.0.6888.22809</Version>
+      <Version>1.0.7000.25212</Version>
     </PackageReference>
     <PackageReference Include="Aspenlaub.Net.GitHub.CSharp.Vishizhukel">
-      <Version>1.0.6882.21427</Version>
+      <Version>1.0.7001.20235</Version>
     </PackageReference>
     <PackageReference Include="CsvHelper">
-      <Version>8.3.0</Version>
+      <Version>12.1.2</Version>
     </PackageReference>
     <PackageReference Include="DotNetZip">
-      <Version>1.12.0</Version>
+      <Version>1.13.3</Version>
     </PackageReference>
     <PackageReference Include="System.Management.Automation_PowerShell_3.0">
       <Version>6.3.9600.17400</Version>

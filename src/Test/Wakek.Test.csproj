@@ -78,16 +78,16 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Aspenlaub.Net.GitHub.CSharp.Pegh">
-      <Version>1.0.6888.22809</Version>
+      <Version>1.0.7000.25212</Version>
     </PackageReference>
     <PackageReference Include="Aspenlaub.Net.GitHub.CSharp.Vishizhukel">
-      <Version>1.0.6882.21427</Version>
+      <Version>1.0.7001.20235</Version>
     </PackageReference>
     <PackageReference Include="DotNetZip">
-      <Version>1.12.0</Version>
+      <Version>1.13.3</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.NET.Test.Sdk">
-      <Version>15.9.0</Version>
+      <Version>16.0.0</Version>
     </PackageReference>
     <PackageReference Include="Moq">
       <Version>4.10.1</Version>
@@ -105,7 +105,7 @@
       <Version>4.5.2</Version>
     </PackageReference>
     <PackageReference Include="System.Threading.Tasks.Extensions">
-      <Version>4.5.1</Version>
+      <Version>4.5.2</Version>
     </PackageReference>
     <PackageReference Include="System.ValueTuple">
       <Version>4.5.0</Version>
