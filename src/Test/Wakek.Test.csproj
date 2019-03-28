@@ -77,7 +77,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Aspenlaub.Net.GitHub.CSharp.Pegh" Version="1.0.7011.17196" />
+    <PackageReference Include="Aspenlaub.Net.GitHub.CSharp.Pegh" Version="1.0.7011.22966" />
     <PackageReference Include="Aspenlaub.Net.GitHub.CSharp.Vishizhukel" Version="1.0.7011.23169" />
     <PackageReference Include="DotNetZip" Version="1.13.3" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.0.1" />
