@@ -75,8 +75,8 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Aspenlaub.Net.GitHub.CSharp.Pegh" Version="1.0.7011.22966" />
-    <PackageReference Include="Aspenlaub.Net.GitHub.CSharp.Vishizhukel" Version="1.0.7026.34154" />
+    <PackageReference Include="Aspenlaub.Net.GitHub.CSharp.Pegh" Version="1.0.7033.15891" />
+    <PackageReference Include="Aspenlaub.Net.GitHub.CSharp.Vishizhukel" Version="1.0.7033.35652" />
     <PackageReference Include="CsvHelper" Version="12.1.2" />
     <PackageReference Include="DotNetZip" Version="1.13.3" />
     <PackageReference Include="System.Management.Automation_PowerShell_3.0" Version="6.3.9600.17400" />
