@@ -77,13 +77,13 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Aspenlaub.Net.GitHub.CSharp.Pegh" Version="1.0.7163.36913" />
-    <PackageReference Include="Aspenlaub.Net.GitHub.CSharp.Vishizhukel" Version="1.0.7165.16699" />
-    <PackageReference Include="DotNetZip" Version="1.13.3" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
-    <PackageReference Include="Moq" Version="4.12.0" />
-    <PackageReference Include="MSTest.TestAdapter" Version="1.4.0" />
-    <PackageReference Include="MSTest.TestFramework" Version="1.4.0" />
+    <PackageReference Include="Aspenlaub.Net.GitHub.CSharp.Pegh" Version="1.0.7198.33057" />
+    <PackageReference Include="Aspenlaub.Net.GitHub.CSharp.Vishizhukel" Version="1.0.7204.24327" />
+    <PackageReference Include="DotNetZip" Version="1.13.4" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.3.0" />
+    <PackageReference Include="Moq" Version="4.13.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="2.0.0" />
+    <PackageReference Include="MSTest.TestFramework" Version="2.0.0" />
     <PackageReference Include="System.Management.Automation_PowerShell_3.0" Version="6.3.9600.17400" />
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.5.2" />
     <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.3" />
