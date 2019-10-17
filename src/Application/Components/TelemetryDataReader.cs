@@ -8,10 +8,10 @@ using Aspenlaub.Net.GitHub.CSharp.Wakek.Interfaces.Components;
 
 namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application.Components {
     public class TelemetryDataReader : ITelemetryDataReader {
-        protected readonly IWakekComponentProvider ComponentProvider;
+        private readonly ITelemetryDataParser vTelemetryDataParser;
 
-        public TelemetryDataReader(IWakekComponentProvider componentProvider) {
-            ComponentProvider = componentProvider;
+        public TelemetryDataReader(ITelemetryDataParser telemetryDataParser) {
+            vTelemetryDataParser = telemetryDataParser;
         }
 
         public async Task<IList<ITelemetryData>> ReadAsync(IBenchmarkDefinition benchmarkDefinition) {
@@ -30,8 +30,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application.Components {
             var data = await client.GetStringAsync(url);
             if (string.IsNullOrEmpty(data)) { return new List<ITelemetryData>(); }
 
-            IList<ITelemetryData> result;
-            return !ComponentProvider.TelemetryDataParser.TryParse(data, out result) ? new List<ITelemetryData>() : result;
+            return !vTelemetryDataParser.TryParse(data, out var result) ? new List<ITelemetryData>() : result;
         }
     }
 }

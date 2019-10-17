@@ -1,7 +1,9 @@
 ﻿using System.Threading.Tasks;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Components;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Entities;
+using Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces;
 using Aspenlaub.Net.GitHub.CSharp.Wakek.Entities;
+using Autofac;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Test {
@@ -10,9 +12,9 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Test {
         [TestMethod]
         public async Task HaveBenchmarkDefinitionsSecret() {
             var secret = new SecretBenchmarkDefinitions();
-            var peghComponentProvider = new ComponentProvider();
+            var container = new ContainerBuilder().UsePegh(new DummyCsArgumentPrompter()).Build();
             var errorsAndInfos = new ErrorsAndInfos();
-            await peghComponentProvider.SecretRepository.GetAsync(secret, errorsAndInfos);
+            await container.Resolve<ISecretRepository>().GetAsync(secret, errorsAndInfos);
             Assert.IsFalse(errorsAndInfos.AnyErrors(), string.Join("\r\n", errorsAndInfos.Errors));
         }
 

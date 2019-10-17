@@ -46,18 +46,17 @@
     <Compile Include="BenchmarkDefinitionTest.cs" />
     <Compile Include="BenchmarkExecutionFactoryTest.cs" />
     <Compile Include="ExecuteCommandTest.cs" />
+    <Compile Include="FakeHttpClientFactory.cs" />
     <Compile Include="HttpClientProxyTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SequenceNumberGeneratorTest.cs" />
     <Compile Include="TelemetryDataParserTest.cs" />
     <Compile Include="TelemetryDataReaderTest.cs" />
-    <Compile Include="WakekComponentProviderTest.cs" />
     <Compile Include="WakekTestApplication.cs" />
     <Compile Include="WakekTestApplicationTest.cs" />
     <Compile Include="XmlSerializedObjectReaderTest.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
     <EmbeddedResource Include="telemetrydata.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
@@ -77,8 +76,11 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Aspenlaub.Net.GitHub.CSharp.Pegh" Version="1.0.7205.32135" />
-    <PackageReference Include="Aspenlaub.Net.GitHub.CSharp.Vishizhukel" Version="1.0.7207.28605" />
+    <PackageReference Include="Aspenlaub.Net.GitHub.CSharp.Pegh" Version="1.0.7228.20379" />
+    <PackageReference Include="Aspenlaub.Net.GitHub.CSharp.Vishizhukel" Version="1.0.7228.25193" />
+    <PackageReference Include="Autofac">
+      <Version>4.9.4</Version>
+    </PackageReference>
     <PackageReference Include="DotNetZip" Version="1.13.4" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.3.0" />
     <PackageReference Include="Moq" Version="4.13.0" />

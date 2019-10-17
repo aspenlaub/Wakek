@@ -16,7 +16,6 @@ using Aspenlaub.Net.GitHub.CSharp.Wakek.Interfaces.Components;
 
 namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
     public class WakekApplication : IWakekApplication {
-        public IWakekComponentProvider WakekComponentProvider { get; }
         protected IApplicationCommandController Controller;
         protected IApplicationCommandExecutionContext Context;
         protected SynchronizationContext UiSynchronizationContext;
@@ -30,20 +29,24 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
         public ObservableCollection<IDisplayedBenchmarkExecutionState> DisplayedBenchmarkExecutionStates { get; }
         protected static object LockObject = new object();
 
+        private readonly IXmlSerializedObjectReader vXmlSerializedObjectReader;
+
         protected int NextSequenceNumber;
 
-        public WakekApplication(IWakekComponentProvider wakekComponentProvider, IApplicationCommandController controller, IApplicationCommandExecutionContext context, SynchronizationContext uiSynchronizationContext, Func<string, int> navigateToStringReturnContentAsNumber) {
-            WakekComponentProvider = wakekComponentProvider;
+        public WakekApplication(IApplicationCommandController controller, IApplicationCommandExecutionContext context, SynchronizationContext uiSynchronizationContext, Func<string, int> navigateToStringReturnContentAsNumber,
+                ISecretRepository secretRepository, IXmlSerializedObjectReader xmlSerializedObjectReader, IBenchmarkExecutionFactory benchmarkExecutionFactory,
+                IXmlSerializer xmlSerializer, ITelemetryDataReader telemetryDataReader, IHttpClientFactory httpClientFactory) {
             Controller = controller;
             Context = context;
             UiSynchronizationContext = uiSynchronizationContext;
             NavigateToStringReturnContentAsNumber = navigateToStringReturnContentAsNumber;
+            vXmlSerializedObjectReader = xmlSerializedObjectReader;
             Log = new ApplicationLog();
             NextSequenceNumber = 1;
 
             var secret = new SecretBenchmarkDefinitions();
             var errorsAndInfos = new ErrorsAndInfos();
-            BenchmarkDefinitions = WakekComponentProvider.PeghComponentProvider.SecretRepository.GetAsync(secret, errorsAndInfos).Result;
+            BenchmarkDefinitions = secretRepository.GetAsync(secret, errorsAndInfos).Result;
             if (errorsAndInfos.AnyErrors()) {
                 throw new Exception(string.Join("\r\n", errorsAndInfos.Errors));
             }
@@ -56,7 +59,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
             BenchmarkDefinitions.CollectionChanged += BenchmarkDefinitionsOnCollectionChanged;
             BenchmarkExecutionStates.CollectionChanged += BenchmarkExecutionStatesOnCollectionChanged;
 
-            Controller.AddCommand(new ExecuteCommand(this), true);
+            Controller.AddCommand(new ExecuteCommand(this, benchmarkExecutionFactory, xmlSerializer, telemetryDataReader, httpClientFactory), true);
         }
 
         private void BenchmarkExecutionStatesOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs notifyCollectionChangedEventArgs) {
@@ -107,19 +110,19 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
             handled = true;
             switch (feedback.Type) {
                 case FeedbackType.ImportantMessage: {
-                    WakekComponentProvider.XmlSerializedObjectReader.IdentifyType(feedback.Message, out handled, out var feedbackSerializedObjectType);
+                    vXmlSerializedObjectReader.IdentifyType(feedback.Message, out handled, out var feedbackSerializedObjectType);
                     if (!handled) { return; }
 
                     if (feedbackSerializedObjectType == typeof(BenchmarkExecution)) {
-                        var benchmarkExecution = WakekComponentProvider.XmlSerializedObjectReader.Read<BenchmarkExecution>(feedback.Message);
+                        var benchmarkExecution = vXmlSerializedObjectReader.Read<BenchmarkExecution>(feedback.Message);
                         ReplaceOrAddToCollection(benchmarkExecution, BenchmarkExecutions);
                     } else if (feedbackSerializedObjectType == typeof(BenchmarkExecutionState)) {
-                        var benchmarkExecutionState = WakekComponentProvider.XmlSerializedObjectReader.Read<BenchmarkExecutionState>(feedback.Message);
+                        var benchmarkExecutionState = vXmlSerializedObjectReader.Read<BenchmarkExecutionState>(feedback.Message);
                         ReplaceOrAddToCollection(benchmarkExecutionState, BenchmarkExecutionStates);
                     } else {
                         handled = false;
                     }
-                // ReSharper disable once SeparateControlTransferStatement
+                    // ReSharper disable once SeparateControlTransferStatement
                 } break;
                 case FeedbackType.LogInformation: {
                     Log.Add(new LogEntry { Message = feedback.Message, CreatedAt = feedback.CreatedAt, SequenceNumber = feedback.SequenceNumber });

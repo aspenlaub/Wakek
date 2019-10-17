@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Aspenlaub.Net.GitHub.CSharp.Pegh.Components;
+using Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces;
 using Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Application;
 using Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Interfaces.Application;
 using Aspenlaub.Net.GitHub.CSharp.Wakek.Entities;
@@ -13,16 +13,22 @@ using Aspenlaub.Net.GitHub.CSharp.Wakek.Interfaces.Components;
 namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
     public class ExecuteCommand : IApplicationCommand {
         protected IExecuteCommandContext ContextOwner;
-        protected IWakekComponentProvider WakekComponentProvider;
-        protected XmlSerializer XmlSerializer;
 
         public bool MakeLogEntries => true;
         public string Name => Properties.Resources.ExecuteCommandName;
 
-        public ExecuteCommand(IExecuteCommandContext contextOwner) {
+        private readonly IBenchmarkExecutionFactory vBenchmarkExecutionFactory;
+        private readonly IXmlSerializer vXmlSerializer;
+        private readonly ITelemetryDataReader vTelemetryDataReader;
+        private readonly IHttpClientFactory vHttpClientFactory;
+
+        public ExecuteCommand(IExecuteCommandContext contextOwner, IBenchmarkExecutionFactory benchmarkExecutionFactory, IXmlSerializer xmlSerializer,
+                ITelemetryDataReader telemetryDataReader, IHttpClientFactory httpClientFactory) {
             ContextOwner = contextOwner;
-            WakekComponentProvider = ContextOwner.WakekComponentProvider;
-            XmlSerializer = new XmlSerializer();
+            vXmlSerializer = xmlSerializer;
+            vBenchmarkExecutionFactory = benchmarkExecutionFactory;
+            vTelemetryDataReader = telemetryDataReader;
+            vHttpClientFactory = httpClientFactory;
         }
 
         public bool CanExecute() {
@@ -32,37 +38,38 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
         public async Task Execute(IApplicationCommandExecutionContext context) {
             var executionStart = DateTime.Now;
             var benchmarkDefinition = ContextOwner.SelectedBenchmarkDefinition;
-            var benchmarkExecution = WakekComponentProvider.BenchmarkExecutionFactory.CreateBenchmarkExecution(benchmarkDefinition) as BenchmarkExecution;
-            context.Report(new FeedbackToApplication { Type = FeedbackType.ImportantMessage, Message = XmlSerializer.Serialize(benchmarkExecution) });
+            var benchmarkExecution = vBenchmarkExecutionFactory.CreateBenchmarkExecution(benchmarkDefinition) as BenchmarkExecution;
+            context.Report(new FeedbackToApplication { Type = FeedbackType.ImportantMessage, Message = vXmlSerializer.Serialize(benchmarkExecution) });
             context.Report(new FeedbackToApplication { Type = FeedbackType.LogInformation, Message = string.Format(Properties.Resources.CreatingThreads, benchmarkDefinition.NumberOfCallsInParallel) });
 
-            var initialTelemetryData = await WakekComponentProvider.TelemetryDataReader.ReadAsync(benchmarkDefinition);
+            var initialTelemetryData = await vTelemetryDataReader.ReadAsync(benchmarkDefinition);
 
-            var client = WakekComponentProvider.HttpClient;
-            var url = benchmarkDefinition.Url;
-            if (!string.IsNullOrEmpty(url)) {
-                client.BaseAddress = new Uri(url);
-            }
-
-            BenchmarkExecutionState firstBestExecutionState = null;
-            switch (benchmarkDefinition.BenchmarkExecutionType) {
-                case BenchmarkExecutionType.CsNative: {
-                    var tasks = Enumerable.Range(1, benchmarkDefinition.NumberOfCallsInParallel).Select(t => ExecuteForThreadNativeCsAsync(context, benchmarkDefinition, benchmarkExecution, t, executionStart, client));
-                    var executionStates = await Task.WhenAll(tasks);
-                    firstBestExecutionState = executionStates[0];
+            using (var client = vHttpClientFactory.Create()) {
+                var url = benchmarkDefinition.Url;
+                if (!string.IsNullOrEmpty(url)) {
+                    client.BaseAddress = new Uri(url);
                 }
-                break;
-                case BenchmarkExecutionType.JavaScript: {
-                    firstBestExecutionState = await ExecuteForThreadJavaScriptAsync(context, benchmarkDefinition, benchmarkExecution, executionStart, client);
-                }
-                break;
-            }
 
-            var finalTelemetryData = await WakekComponentProvider.TelemetryDataReader.ReadAsync(benchmarkDefinition);
-            if (firstBestExecutionState != null && finalTelemetryData.Count != 0) {
-                firstBestExecutionState.RemoteRequiringForHowManySeconds = SecondsSpent(initialTelemetryData, finalTelemetryData, t => t.RequiringForHowManyMilliSeconds);
-                firstBestExecutionState.RemoteExecutingForHowManySeconds = SecondsSpent(initialTelemetryData, finalTelemetryData, t => t.ExecutingForHowManyMilliSeconds);
-                context.Report(new FeedbackToApplication { Type = FeedbackType.ImportantMessage, Message = XmlSerializer.Serialize(firstBestExecutionState) });
+                BenchmarkExecutionState firstBestExecutionState = null;
+                switch (benchmarkDefinition.BenchmarkExecutionType) {
+                    case BenchmarkExecutionType.CsNative: {
+                        var clientCopy = client;
+                        var tasks = Enumerable.Range(1, benchmarkDefinition.NumberOfCallsInParallel).Select(t => ExecuteForThreadNativeCsAsync(context, benchmarkDefinition, benchmarkExecution, t, executionStart, clientCopy));
+                        var executionStates = await Task.WhenAll(tasks);
+                        firstBestExecutionState = executionStates[0];
+                    }
+                    break;
+                    case BenchmarkExecutionType.JavaScript: {
+                        firstBestExecutionState = await ExecuteForThreadJavaScriptAsync(context, benchmarkDefinition, benchmarkExecution, executionStart, client);
+                    }
+                    break;
+                }
+                var finalTelemetryData = await vTelemetryDataReader.ReadAsync(benchmarkDefinition);
+                if (firstBestExecutionState != null && finalTelemetryData.Count != 0) {
+                    firstBestExecutionState.RemoteRequiringForHowManySeconds = SecondsSpent(initialTelemetryData, finalTelemetryData, t => t.RequiringForHowManyMiliSeconds);
+                    firstBestExecutionState.RemoteExecutingForHowManySeconds = SecondsSpent(initialTelemetryData, finalTelemetryData, t => t.ExecutingForHowManyMiliSeconds);
+                    context.Report(new FeedbackToApplication { Type = FeedbackType.ImportantMessage, Message = vXmlSerializer.Serialize(firstBestExecutionState) });
+                }
             }
 
 
@@ -76,8 +83,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
         }
 
         private async Task<BenchmarkExecutionState> ExecuteForThreadNativeCsAsync(IApplicationCommandExecutionContext context, IBenchmarkDefinition benchmarkDefinition, IBenchmarkExecution benchmarkExecution, int threadNumber, DateTime executionStart, IHttpClient client) {
-            DateTime threadExecutionEnd;
-            var benchmarkExecutionState = BeginExecuteForThread(context, benchmarkDefinition, benchmarkExecution, threadNumber, executionStart, out threadExecutionEnd);
+            var benchmarkExecutionState = BeginExecuteForThread(context, benchmarkDefinition, benchmarkExecution, threadNumber, executionStart, out var threadExecutionEnd);
 
             var counter = 0;
             do {
@@ -104,7 +110,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
 
                 counter = (counter + 1) % 10;
                 if (counter == 1) {
-                    context.Report(new FeedbackToApplication { Type = FeedbackType.ImportantMessage, Message = XmlSerializer.Serialize(benchmarkExecutionState) });
+                    context.Report(new FeedbackToApplication { Type = FeedbackType.ImportantMessage, Message = vXmlSerializer.Serialize(benchmarkExecutionState) });
                 }
             } while (DateTime.Now < threadExecutionEnd);
 
@@ -126,8 +132,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
                 </script>
                 </head><body lang='en'><div id='content'>Please wait..</div></body></html>";
 
-            DateTime threadExecutionEnd;
-            var benchmarkExecutionState = BeginExecuteForThread(context, benchmarkDefinition, benchmarkExecution, 1, executionStart, out threadExecutionEnd);
+            var benchmarkExecutionState = BeginExecuteForThread(context, benchmarkDefinition, benchmarkExecution, 1, executionStart, out _);
 
             var task = Task.Factory.StartNew(() => ContextOwner.NavigateToStringReturnContentAsNumber(html));
             return await task.ContinueWith(t => JavaScriptFinished(t, context, executionStart, benchmarkExecutionState));
@@ -143,20 +148,20 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
         private void EndExecuteForThread(IApplicationCommandExecutionContext context, int threadNumber, DateTime executionStart, BenchmarkExecutionState benchmarkExecutionState) {
             benchmarkExecutionState.ExecutingForHowManySeconds = (int)Math.Floor((DateTime.Now - executionStart).TotalSeconds);
             benchmarkExecutionState.Finished = true;
-            context.Report(new FeedbackToApplication { Type = FeedbackType.ImportantMessage, Message = XmlSerializer.Serialize(benchmarkExecutionState) });
+            context.Report(new FeedbackToApplication { Type = FeedbackType.ImportantMessage, Message = vXmlSerializer.Serialize(benchmarkExecutionState) });
             context.Report(new FeedbackToApplication { Type = FeedbackType.LogInformation, Message = string.Format(Properties.Resources.FinishedThread, threadNumber) });
         }
 
         private BenchmarkExecutionState BeginExecuteForThread(IApplicationCommandExecutionContext context, IBenchmarkDefinition benchmarkDefinition, IBenchmarkExecution benchmarkExecution, int threadNumber, DateTime executionStart,
             out DateTime threadExecutionEnd) {
-            var benchmarkExecutionState = WakekComponentProvider.BenchmarkExecutionFactory.CreateBenchmarkExecutionState(benchmarkExecution, threadNumber) as BenchmarkExecutionState;
+            var benchmarkExecutionState = vBenchmarkExecutionFactory.CreateBenchmarkExecutionState(benchmarkExecution, threadNumber) as BenchmarkExecutionState;
             if (benchmarkExecutionState == null) {
                 throw new NullReferenceException();
             }
 
             threadExecutionEnd = executionStart.AddSeconds(benchmarkDefinition.ExecutionTimeInSeconds);
 
-            context.Report(new FeedbackToApplication { Type = FeedbackType.ImportantMessage, Message = XmlSerializer.Serialize(benchmarkExecutionState) });
+            context.Report(new FeedbackToApplication { Type = FeedbackType.ImportantMessage, Message = vXmlSerializer.Serialize(benchmarkExecutionState) });
             context.Report(new FeedbackToApplication { Type = FeedbackType.LogInformation, Message = string.Format(Properties.Resources.CreatedThread, threadNumber) });
             return benchmarkExecutionState;
         }

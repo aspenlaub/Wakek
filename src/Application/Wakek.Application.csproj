@@ -42,9 +42,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Components\BenchmarkExecutionFactory.cs" />
+    <Compile Include="Components\HttpClientFactory.cs" />
     <Compile Include="Components\HttpClientProxy.cs" />
     <Compile Include="Components\TelemetryDataParser.cs" />
     <Compile Include="Components\TelemetryDataReader.cs" />
+    <Compile Include="Components\WakekContainerBuilder.cs" />
     <Compile Include="ExecuteCommand.cs" />
     <Compile Include="IWakekApplication.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -55,7 +57,6 @@
     </Compile>
     <Compile Include="Components\SequenceNumberGenerator.cs" />
     <Compile Include="WakekApplication.cs" />
-    <Compile Include="Components\WakekComponentProvider.cs" />
     <Compile Include="Components\XmlSerializedObjectReader.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -75,8 +76,8 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Aspenlaub.Net.GitHub.CSharp.Pegh" Version="1.0.7205.32135" />
-    <PackageReference Include="Aspenlaub.Net.GitHub.CSharp.Vishizhukel" Version="1.0.7207.28605" />
+    <PackageReference Include="Aspenlaub.Net.GitHub.CSharp.Pegh" Version="1.0.7228.20379" />
+    <PackageReference Include="Aspenlaub.Net.GitHub.CSharp.Vishizhukel" Version="1.0.7228.25193" />
     <PackageReference Include="CsvHelper" Version="12.1.2" />
     <PackageReference Include="DotNetZip" Version="1.13.4" />
     <PackageReference Include="System.Management.Automation_PowerShell_3.0" Version="6.3.9600.17400" />

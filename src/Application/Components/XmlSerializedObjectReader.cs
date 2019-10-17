@@ -7,10 +7,10 @@ using Aspenlaub.Net.GitHub.CSharp.Wakek.Interfaces.Components;
 
 namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application.Components {
     public class XmlSerializedObjectReader : IXmlSerializedObjectReader {
-        protected IComponentProvider PeghComponentProvider;
+        private readonly IXmlDeserializer vXmlDeserializer;
 
-        public XmlSerializedObjectReader(IComponentProvider peghComponentProvider) {
-            PeghComponentProvider = peghComponentProvider;
+        public XmlSerializedObjectReader(IXmlDeserializer xmlDeserializer) {
+            vXmlDeserializer = xmlDeserializer;
         }
 
         public void IdentifyType(string s, out bool success, out Type t) {
@@ -32,7 +32,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application.Components {
         }
 
         public T Read<T>(string s) {
-            return PeghComponentProvider.XmlDeserializer.Deserialize<T>(s);
+            return vXmlDeserializer.Deserialize<T>(s);
         }
     }
 }

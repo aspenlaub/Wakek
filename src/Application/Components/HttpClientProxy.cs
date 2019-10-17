@@ -16,8 +16,12 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application.Components {
         }
 
         public Uri BaseAddress {
-            get { return HttpClient.BaseAddress; }
-            set { HttpClient.BaseAddress = value; }
+            get => HttpClient.BaseAddress;
+            set => HttpClient.BaseAddress = value;
+        }
+
+        public void Dispose() {
+            HttpClient.Dispose();
         }
     }
 }

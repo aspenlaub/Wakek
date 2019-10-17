@@ -1,8 +1,10 @@
 ﻿using System;
-using Aspenlaub.Net.GitHub.CSharp.Pegh.Components;
+using Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces;
 using Aspenlaub.Net.GitHub.CSharp.Wakek.Application.Components;
 using Aspenlaub.Net.GitHub.CSharp.Wakek.Entities;
 using Aspenlaub.Net.GitHub.CSharp.Wakek.Interfaces;
+using Aspenlaub.Net.GitHub.CSharp.Wakek.Interfaces.Components;
+using Autofac;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Test {
@@ -10,11 +12,9 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Test {
     public class XmlSerializedObjectReaderTest {
         [TestMethod]
         public void CanReadSerializedObject() {
-            var componentProvider = new ComponentProvider();
-            var sut = new XmlSerializedObjectReader(componentProvider);
-            bool success;
-            Type t;
-            sut.IdentifyType("", out success, out t);
+            var container = new ContainerBuilder().UseWakek().Build();
+            var sut = container.Resolve<IXmlSerializedObjectReader>();
+            sut.IdentifyType("", out var success, out var t);
             Assert.IsFalse(success);
             sut.IdentifyType("<?xml", out success, out t);
             Assert.IsFalse(success);
@@ -23,8 +23,8 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Test {
                 new BenchmarkDefinition { BenchmarkExecutionType = BenchmarkExecutionType.CsNative, Description = "Not a benchmark", ExecutionTimeInSeconds = 24, Guid = Guid.NewGuid().ToString(), NumberOfCallsInParallel = 7, Url = "https://www.aspenlaub.net"}
             };
             var serializedObjects = new[] {
-                componentProvider.XmlSerializer.Serialize(objects[0] as BenchmarkExecution),
-                componentProvider.XmlSerializer.Serialize(objects[0] as BenchmarkDefinition)
+                container.Resolve<IXmlSerializer>().Serialize(objects[0] as BenchmarkExecution),
+                container.Resolve<IXmlSerializer>().Serialize(objects[0] as BenchmarkDefinition)
             };
 
             for(var i = 0; i < objects.Length; i ++) {

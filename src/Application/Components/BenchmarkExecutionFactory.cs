@@ -5,10 +5,10 @@ using Aspenlaub.Net.GitHub.CSharp.Wakek.Interfaces.Components;
 
 namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application.Components {
     public class BenchmarkExecutionFactory : IBenchmarkExecutionFactory {
-        protected IWakekComponentProvider WakekComponentProvider;
+        private readonly ISequenceNumberGenerator vSequenceNumberGenerator;
 
-        public BenchmarkExecutionFactory(IWakekComponentProvider wakekComponentProvider) {
-            WakekComponentProvider = wakekComponentProvider;
+        public BenchmarkExecutionFactory(ISequenceNumberGenerator sequenceNumberGenerator) {
+            vSequenceNumberGenerator = sequenceNumberGenerator;
         }
 
         public IBenchmarkExecution CreateBenchmarkExecution(IBenchmarkDefinition benchmarkDefinition) {
@@ -17,7 +17,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application.Components {
             }
 
             return new BenchmarkExecution {
-                SequenceNumber = WakekComponentProvider.SequenceNumberGenerator.NewSequenceNumber(nameof(BenchmarkExecution)),
+                SequenceNumber = vSequenceNumberGenerator.NewSequenceNumber(nameof(BenchmarkExecution)),
                 Guid = Guid.NewGuid().ToString(),
                 BenchmarkDefinitionGuid = benchmarkDefinition.Guid,
             };
@@ -29,7 +29,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application.Components {
             }
 
             return new BenchmarkExecutionState {
-                SequenceNumber = WakekComponentProvider.SequenceNumberGenerator.NewSequenceNumber(nameof(BenchmarkExecutionState)),
+                SequenceNumber = vSequenceNumberGenerator.NewSequenceNumber(nameof(BenchmarkExecutionState)),
                 BenchmarkExecutionGuid = benchmarkExecution.Guid, ThreadNumber = threadNumber,
                 ExecutingForHowManySeconds = 0,
                 Failures = 0, Successes = 0,

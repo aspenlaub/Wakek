@@ -5,20 +5,22 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
-using Aspenlaub.Net.GitHub.CSharp.Pegh.Components;
+using Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces;
 using Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Application;
 using Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Interfaces.Application;
 using Aspenlaub.Net.GitHub.CSharp.Wakek.Application;
 using Aspenlaub.Net.GitHub.CSharp.Wakek.Application.Components;
 using Aspenlaub.Net.GitHub.CSharp.Wakek.Interfaces;
+using Aspenlaub.Net.GitHub.CSharp.Wakek.Interfaces.Components;
+using Autofac;
 using mshtml;
-
 #pragma warning disable 4014
 
 namespace Aspenlaub.Net.GitHub.CSharp.Wakek {
     /// <summary>
     /// Interaction logic for WakekWindow.xaml
     /// </summary>
+    // ReSharper disable once UnusedMember.Global
     public partial class WakekWindow {
         protected ApplicationCommandController Controller;
         protected WakekApplication WakekApplication;
@@ -29,14 +31,16 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek {
         public WakekWindow() {
             Controller = new ApplicationCommandController(ApplicationFeedbackHandler);
             UiSynchronizationContext = SynchronizationContext.Current;
-            WakekApplication = new WakekApplication(new WakekComponentProvider(new ComponentProvider()), Controller, Controller, UiSynchronizationContext, NavigateToStringReturnContentAsNumber);
+            var container = new ContainerBuilder().UseWakek().Build();
+            WakekApplication = new WakekApplication(Controller, Controller, UiSynchronizationContext, NavigateToStringReturnContentAsNumber,
+                container.Resolve<ISecretRepository>(), container.Resolve<IXmlSerializedObjectReader>(), container.Resolve<IBenchmarkExecutionFactory>(),
+                container.Resolve<IXmlSerializer>(), container.Resolve<ITelemetryDataReader>(), container.Resolve<IHttpClientFactory>());
 
             InitializeComponent();
         }
 
         public void ApplicationFeedbackHandler(IFeedbackToApplication feedback) {
-            bool handled;
-            WakekApplication.ApplicationFeedbackHandler(feedback, out handled);
+            WakekApplication.ApplicationFeedbackHandler(feedback, out var handled);
             if (handled) { return; }
 
             switch (feedback.Type) {
@@ -110,8 +114,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek {
                 }
             } while (oldContents != newContents || newContents.Contains("..") || newContents == initialContents);
 
-            int result;
-            int.TryParse(newContents, out result);
+            int.TryParse(newContents, out var result);
             return result;
         }
 

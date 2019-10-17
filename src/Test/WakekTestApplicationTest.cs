@@ -21,15 +21,13 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Test {
             Assert.AreEqual(WakekTestApplication.TestBenchmarkGuid, Sut.BenchmarkDefinitions[0].Guid);
             Assert.AreEqual(WakekTestApplication.TestBenchmarkGuid, Sut.SelectedBenchmarkDefinition.Guid);
             Assert.AreEqual(WakekTestApplication.TestParallelBenchmarkGuid, Sut.BenchmarkDefinitions[1].Guid);
-            Assert.IsNotNull(Sut.WakekComponentProvider);
             Assert.AreEqual(1, Sut.NavigateToStringReturnContentAsNumber("url"));
         }
 
         [TestMethod]
         public void WakekTestApplicationHandlesLogAndCommandDisabledFeedback() {
-            bool handled;
             var feedback = new FeedbackToApplication { Type = FeedbackType.LogWarning, Message = "Warning" };
-            Sut.ApplicationFeedbackHandler(feedback, out handled);
+            Sut.ApplicationFeedbackHandler(feedback, out var handled);
             Assert.IsTrue(handled);
             feedback = new FeedbackToApplication { Type = FeedbackType.LogError, Message = "Error" };
             Sut.ApplicationFeedbackHandler(feedback, out handled);
