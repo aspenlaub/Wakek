@@ -66,8 +66,8 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
                 }
                 var finalTelemetryData = await vTelemetryDataReader.ReadAsync(benchmarkDefinition);
                 if (firstBestExecutionState != null && finalTelemetryData.Count != 0) {
-                    firstBestExecutionState.RemoteRequiringForHowManySeconds = SecondsSpent(initialTelemetryData, finalTelemetryData, t => t.RequiringForHowManyMiliSeconds);
-                    firstBestExecutionState.RemoteExecutingForHowManySeconds = SecondsSpent(initialTelemetryData, finalTelemetryData, t => t.ExecutingForHowManyMiliSeconds);
+                    firstBestExecutionState.RemoteRequiringForHowManySeconds = SecondsSpent(initialTelemetryData, finalTelemetryData, t => t.RequiringForHowManyMilliSeconds);
+                    firstBestExecutionState.RemoteExecutingForHowManySeconds = SecondsSpent(initialTelemetryData, finalTelemetryData, t => t.ExecutingForHowManyMilliSeconds);
                     context.Report(new FeedbackToApplication { Type = FeedbackType.ImportantMessage, Message = vXmlSerializer.Serialize(firstBestExecutionState) });
                 }
             }

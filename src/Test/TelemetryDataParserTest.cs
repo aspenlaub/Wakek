@@ -14,8 +14,8 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Test {
                 using (var reader = new StreamReader(stream)) {
                     Assert.IsTrue(sut.TryParse(reader.ReadToEnd(), out var result));
                     Assert.AreEqual(39, result.Count);
-                    Assert.AreEqual(27, result[0].RequiringForHowManyMiliSeconds);
-                    Assert.AreEqual(23, result[result.Count - 1].ExecutingForHowManyMiliSeconds);
+                    Assert.AreEqual(27, result[0].RequiringForHowManyMilliSeconds);
+                    Assert.AreEqual(23, result[result.Count - 1].ExecutingForHowManyMilliSeconds);
                 }
             }
         }

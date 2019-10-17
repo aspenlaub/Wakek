@@ -25,7 +25,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Test {
             await client.GetStringAsync(benchmarkDefinition.Url);
             var resultTwo = await sut.ReadAsync(benchmarkDefinition);
             Assert.IsTrue(resultTwo.Count > resultOne.Count);
-            Assert.IsTrue(resultOne.All(r => resultTwo.Any(r2 => r.RequiringForHowManyMiliSeconds == r2.RequiringForHowManyMiliSeconds && r.ExecutingForHowManyMiliSeconds == r2.ExecutingForHowManyMiliSeconds)));
+            Assert.IsTrue(resultOne.All(r => resultTwo.Any(r2 => r.RequiringForHowManyMilliSeconds == r2.RequiringForHowManyMilliSeconds && r.ExecutingForHowManyMilliSeconds == r2.ExecutingForHowManyMilliSeconds)));
         }
     }
 }

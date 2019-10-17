@@ -27,7 +27,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Test {
             // var componentProviderMock = new Mock<IWakekComponentProvider>();
             var telemetryDataReaderMock = new Mock<ITelemetryDataReader>();
             IList<ITelemetryData> result = new List<ITelemetryData> {
-                new TelemetryData { ExecutingForHowManyMiliSeconds = 24, RequiringForHowManyMiliSeconds = 7 }
+                new TelemetryData { ExecutingForHowManyMilliSeconds = 24, RequiringForHowManyMilliSeconds = 7 }
             };
             telemetryDataReaderMock.Setup(t => t.ReadAsync(It.IsAny<IBenchmarkDefinition>())).Returns(Task.FromResult(result));
             ApplicationCommandController = new ApplicationCommandController(ApplicationFeedbackHandler);
