@@ -31,7 +31,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Aspenlaub.Net.GitHub.CSharp.Vishizhukel" Version="1.0.7228.25193" />
+    <PackageReference Include="Aspenlaub.Net.GitHub.CSharp.Vishizhukel" Version="1.0.7231.28852" />
     <PackageReference Include="Autofac" Version="4.9.4" />
     <PackageReference Include="CsvHelper" Version="12.1.2" />
   </ItemGroup>
