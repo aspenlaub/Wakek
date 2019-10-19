@@ -16,7 +16,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="telemetrydata.csv">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>
 
