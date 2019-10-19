@@ -1,17 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28010.2046
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29411.108
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wakek", "Wakek.csproj", "{1B18E81C-9CC5-4122-A6AF-3E44449644E1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wakek", "Wakek.csproj", "{9EAFEB3E-AC9E-4CD8-8F85-5D3A8318CC07}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wakek.Interfaces", "Interfaces\Wakek.Interfaces.csproj", "{D23E3D46-E370-403B-80C2-0C58B746A9B7}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wakek.Entities", "Entities\Wakek.Entities.csproj", "{813922F8-36F5-4CD0-8384-58478BF5A869}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wakek.Test", "Test\Wakek.Test.csproj", "{B650CBBF-5B85-45AC-AFE2-46AE3D71C0C6}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wakek.Application", "Application\Wakek.Application.csproj", "{60A6EEAE-C66A-4E39-9590-63233367AE3D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wakek.Test", "Test\Wakek.Test.csproj", "{4AD4F981-C48A-4EDB-90CE-A0AB5E926D03}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,26 +13,14 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{1B18E81C-9CC5-4122-A6AF-3E44449644E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1B18E81C-9CC5-4122-A6AF-3E44449644E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1B18E81C-9CC5-4122-A6AF-3E44449644E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1B18E81C-9CC5-4122-A6AF-3E44449644E1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D23E3D46-E370-403B-80C2-0C58B746A9B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D23E3D46-E370-403B-80C2-0C58B746A9B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D23E3D46-E370-403B-80C2-0C58B746A9B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D23E3D46-E370-403B-80C2-0C58B746A9B7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{813922F8-36F5-4CD0-8384-58478BF5A869}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{813922F8-36F5-4CD0-8384-58478BF5A869}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{813922F8-36F5-4CD0-8384-58478BF5A869}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{813922F8-36F5-4CD0-8384-58478BF5A869}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B650CBBF-5B85-45AC-AFE2-46AE3D71C0C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B650CBBF-5B85-45AC-AFE2-46AE3D71C0C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B650CBBF-5B85-45AC-AFE2-46AE3D71C0C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B650CBBF-5B85-45AC-AFE2-46AE3D71C0C6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{60A6EEAE-C66A-4E39-9590-63233367AE3D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{60A6EEAE-C66A-4E39-9590-63233367AE3D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{60A6EEAE-C66A-4E39-9590-63233367AE3D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{60A6EEAE-C66A-4E39-9590-63233367AE3D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9EAFEB3E-AC9E-4CD8-8F85-5D3A8318CC07}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9EAFEB3E-AC9E-4CD8-8F85-5D3A8318CC07}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9EAFEB3E-AC9E-4CD8-8F85-5D3A8318CC07}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9EAFEB3E-AC9E-4CD8-8F85-5D3A8318CC07}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4AD4F981-C48A-4EDB-90CE-A0AB5E926D03}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4AD4F981-C48A-4EDB-90CE-A0AB5E926D03}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4AD4F981-C48A-4EDB-90CE-A0AB5E926D03}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4AD4F981-C48A-4EDB-90CE-A0AB5E926D03}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

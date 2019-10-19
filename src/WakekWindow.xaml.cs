@@ -45,16 +45,16 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek {
 
             switch (feedback.Type) {
                 case FeedbackType.CommandExecutionCompleted: {
-                    CommandExecutionCompletedHandler(feedback);
-                }
-                break;
+                        CommandExecutionCompletedHandler(feedback);
+                    }
+                    break;
                 case FeedbackType.CommandsEnabledOrDisabled: {
-                    CommandsEnabledOrDisabledHandler();
-                }
-                break;
+                        CommandsEnabledOrDisabledHandler();
+                    }
+                    break;
                 default: {
-                    throw new NotImplementedException();
-                }
+                        throw new NotImplementedException();
+                    }
             }
         }
 
