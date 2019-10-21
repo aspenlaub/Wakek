@@ -37,7 +37,7 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.mshtml">
-      <HintPath>..\..\..\..\..\..\Program Files (x86)\Microsoft.NET\Primary Interop Assemblies\Microsoft.mshtml.dll</HintPath>
+      <HintPath>c:\Program Files (x86)\Microsoft.NET\Primary Interop Assemblies\Microsoft.mshtml.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
