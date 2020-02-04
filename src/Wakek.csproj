@@ -41,7 +41,7 @@
   <ItemGroup>
     <PackageReference Include="Autofac" Version="5.0.0" />
     <PackageReference Include="CsvHelper" Version="12.2.2" />
-    <PackageReference Include="Vishizhukel" Version="2.0.189.590" />
+    <PackageReference Include="Vishizhukel" Version="2.0.195.1286" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.mshtml">
