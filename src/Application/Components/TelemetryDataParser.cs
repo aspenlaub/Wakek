@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -11,7 +12,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application.Components {
     public class TelemetryDataParser : ITelemetryDataParser {
         public bool TryParse(string s, out IList<ITelemetryData> result) {
             try {
-                var csvReader = new CsvReader(new StreamReader(new MemoryStream(Encoding.UTF8.GetBytes(s))));
+                var csvReader = new CsvReader(new StreamReader(new MemoryStream(Encoding.UTF8.GetBytes(s))), CultureInfo.CurrentCulture);
                 csvReader.Configuration.Delimiter = ";";
                 result = csvReader.GetRecords<TelemetryData>().Cast<ITelemetryData>().ToList();
                 return true;
