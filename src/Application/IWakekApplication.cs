@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 using Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Interfaces.Application;
 using Aspenlaub.Net.GitHub.CSharp.Wakek.Entities;
 using Aspenlaub.Net.GitHub.CSharp.Wakek.Interfaces;
@@ -12,8 +13,9 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
         ObservableCollection<IBenchmarkExecution> BenchmarkExecutions { get; }
         ObservableCollection<IBenchmarkExecutionState> BenchmarkExecutionStates { get; }
         ObservableCollection<IDisplayedBenchmarkExecutionState> DisplayedBenchmarkExecutionStates { get; }
-        void ApplicationFeedbackHandler(IFeedbackToApplication feedback, out bool handled);
+        Task<bool> HandleFeedbackToApplicationReturnSuccessAsync(IFeedbackToApplication feedback);
         void SelectBenchmarkDefinition(IBenchmarkDefinition benchmarkDefinition);
         IList<T> GetObservableCollectionSnapshot<T>(Func<T, bool> criteria, Func<IList<T>> getObservableCollection);
+        Task SetBenchmarkDefinitionsAsync();
     }
 }

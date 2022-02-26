@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Aspenlaub.Net.GitHub.CSharp.Wakek.Entities;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Entities;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces;
@@ -19,17 +20,19 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
         protected IApplicationCommandController Controller;
         protected IApplicationCommandExecutionContext Context;
         protected SynchronizationContext UiSynchronizationContext;
+        protected ISecretRepository SecretRepository;
         public Func<string, int> NavigateToStringReturnContentAsNumber { get; }
         public IApplicationLog Log { get; }
 
-        public BenchmarkDefinitions BenchmarkDefinitions { get; }
+        public BenchmarkDefinitions BenchmarkDefinitions { get; private set; }
         public IBenchmarkDefinition SelectedBenchmarkDefinition { get; private set; }
-        public ObservableCollection<IBenchmarkExecution> BenchmarkExecutions { get; }
-        public ObservableCollection<IBenchmarkExecutionState> BenchmarkExecutionStates { get; }
-        public ObservableCollection<IDisplayedBenchmarkExecutionState> DisplayedBenchmarkExecutionStates { get; }
+        public ObservableCollection<IBenchmarkExecution> BenchmarkExecutions { get; private set; }
+        public ObservableCollection<IBenchmarkExecutionState> BenchmarkExecutionStates { get; private set; }
+        public ObservableCollection<IDisplayedBenchmarkExecutionState> DisplayedBenchmarkExecutionStates { get; private set; }
+
         protected static object LockObject = new object();
 
-        private readonly IXmlSerializedObjectReader vXmlSerializedObjectReader;
+        private readonly IXmlSerializedObjectReader XmlSerializedObjectReader;
 
         protected int NextSequenceNumber;
 
@@ -40,13 +43,17 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
             Context = context;
             UiSynchronizationContext = uiSynchronizationContext;
             NavigateToStringReturnContentAsNumber = navigateToStringReturnContentAsNumber;
-            vXmlSerializedObjectReader = xmlSerializedObjectReader;
+            XmlSerializedObjectReader = xmlSerializedObjectReader;
             Log = new ApplicationLog();
             NextSequenceNumber = 1;
+            SecretRepository = secretRepository;
+            Controller.AddCommand(new ExecuteCommand(this, benchmarkExecutionFactory, xmlSerializer, telemetryDataReader, httpClientFactory), true);
+        }
 
+        public async Task SetBenchmarkDefinitionsAsync() {
             var secret = new SecretBenchmarkDefinitions();
             var errorsAndInfos = new ErrorsAndInfos();
-            BenchmarkDefinitions = secretRepository.GetAsync(secret, errorsAndInfos).Result;
+            BenchmarkDefinitions = await SecretRepository.GetAsync(secret, errorsAndInfos);
             if (errorsAndInfos.AnyErrors()) {
                 throw new Exception(string.Join("\r\n", errorsAndInfos.Errors));
             }
@@ -58,8 +65,6 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
 
             BenchmarkDefinitions.CollectionChanged += BenchmarkDefinitionsOnCollectionChanged;
             BenchmarkExecutionStates.CollectionChanged += BenchmarkExecutionStatesOnCollectionChanged;
-
-            Controller.AddCommand(new ExecuteCommand(this, benchmarkExecutionFactory, xmlSerializer, telemetryDataReader, httpClientFactory), true);
         }
 
         private void BenchmarkExecutionStatesOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs notifyCollectionChangedEventArgs) {
@@ -106,18 +111,22 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
             }
         }
 
-        public void ApplicationFeedbackHandler(IFeedbackToApplication feedback, out bool handled) {
-            handled = true;
+        public async Task HandleFeedbackToApplicationAsync(IFeedbackToApplication feedback) {
+            await HandleFeedbackToApplicationReturnSuccessAsync(feedback);
+        }
+
+        public async Task<bool> HandleFeedbackToApplicationReturnSuccessAsync(IFeedbackToApplication feedback) {
+            var handled = true;
             switch (feedback.Type) {
                 case FeedbackType.ImportantMessage: {
-                    vXmlSerializedObjectReader.IdentifyType(feedback.Message, out handled, out var feedbackSerializedObjectType);
-                    if (!handled) { return; }
+                    XmlSerializedObjectReader.IdentifyType(feedback.Message, out handled, out var feedbackSerializedObjectType);
+                    if (!handled) { return false; }
 
                     if (feedbackSerializedObjectType == typeof(BenchmarkExecution)) {
-                        var benchmarkExecution = vXmlSerializedObjectReader.Read<BenchmarkExecution>(feedback.Message);
+                        var benchmarkExecution = XmlSerializedObjectReader.Read<BenchmarkExecution>(feedback.Message);
                         ReplaceOrAddToCollection(benchmarkExecution, BenchmarkExecutions);
                     } else if (feedbackSerializedObjectType == typeof(BenchmarkExecutionState)) {
-                        var benchmarkExecutionState = vXmlSerializedObjectReader.Read<BenchmarkExecutionState>(feedback.Message);
+                        var benchmarkExecutionState = XmlSerializedObjectReader.Read<BenchmarkExecutionState>(feedback.Message);
                         ReplaceOrAddToCollection(benchmarkExecutionState, BenchmarkExecutionStates);
                     } else {
                         handled = false;
@@ -140,6 +149,8 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
                     handled = false;
                 } break;
             }
+
+            return await Task.FromResult(handled);
         }
 
         private static void ReplaceOrAddToCollection<T>(T item, IList<T> collection) where T : IGuid {

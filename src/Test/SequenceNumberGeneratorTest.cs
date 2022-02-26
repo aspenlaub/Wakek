@@ -10,12 +10,12 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Test {
         protected const string OtherSequenceName = "IAmNotASequenceEither";
 
         [TestMethod]
-        public void CanGenerateSequenceNumbers() {
+        public async Task CanGenerateSequenceNumbers() {
             var sut = new SequenceNumberGenerator();
             Assert.AreEqual(1, sut.NewSequenceNumber(SequenceName));
             Assert.AreEqual(2, sut.NewSequenceNumber(SequenceName));
             Assert.AreEqual(1, sut.NewSequenceNumber(OtherSequenceName));
-            var sequenceNumbers = Task.WhenAll(Enumerable.Range(0, 1000).Select(i => Task.Run(() => sut.NewSequenceNumber(SequenceName)))).Result.ToList();
+            var sequenceNumbers = (await Task.WhenAll(Enumerable.Range(0, 1000).Select(i => Task.Run(() => sut.NewSequenceNumber(SequenceName))))).ToList();
             Assert.AreEqual(sequenceNumbers.Distinct().Count(), sequenceNumbers.Count);
             Assert.IsTrue(Enumerable.Range(0, 1000).All(i => sequenceNumbers.Contains(i + 3)));
         }

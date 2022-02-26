@@ -10,7 +10,7 @@
         mc:Ignorable="d"
         Title="Wakek" Icon="aspenlaub.ico" Background="Beige" Foreground="Teal"
         Width="1200" MinWidth="1200" Height="600"
-        Loaded="WakekWindow_OnLoaded">
+        Loaded="OnWakekWindowLoadedAsync">
     <Window.Resources>
         <CollectionViewSource x:Key="BenchmarkDefinitionViewSource" d:DesignSource="{d:DesignInstance {x:Type entities1:BenchmarkDefinition}, CreateList=True}"/>
         <CollectionViewSource x:Key="BenchmarkExecutionStateViewSource" d:DesignSource="{d:DesignInstance {x:Type entities1:DisplayedBenchmarkExecutionState}, CreateList=True}"/>

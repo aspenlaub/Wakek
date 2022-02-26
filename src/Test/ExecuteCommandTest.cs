@@ -23,21 +23,23 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Test {
         protected IApplicationCommandExecutionContext ApplicationCommandExecutionContext;
         protected bool HttpClientGetStringSucceeds;
 
-        private readonly IContainer vContainer;
+        private readonly IContainer Container;
 
         public ExecuteCommandTest() {
-            vContainer = new ContainerBuilder().UseWakek().Build();
+            Container = new ContainerBuilder().UseWakek().Build();
         }
 
         [TestInitialize]
-        public void Initialize() {
+        public async Task Initialize() {
             HttpClientGetStringSucceeds = true;
             var factory = new FakeHttpClientFactory(() => HttpClientGetStringSucceeds);
             WakekApplication = new WakekTestApplication(factory);
-            ExecuteCommand = new ExecuteCommand(WakekApplication, vContainer.Resolve<IBenchmarkExecutionFactory>(), vContainer.Resolve<IXmlSerializer>(),
-                vContainer.Resolve<ITelemetryDataReader>(), factory);
+            await WakekApplication.SetBenchmarkDefinitionsAsync();
+            ExecuteCommand = new ExecuteCommand(WakekApplication, Container.Resolve<IBenchmarkExecutionFactory>(), Container.Resolve<IXmlSerializer>(),
+                Container.Resolve<ITelemetryDataReader>(), factory);
             var applicationCommandExecutionContextMock = new Mock<IApplicationCommandExecutionContext>();
-            applicationCommandExecutionContextMock.Setup(a => a.Report(It.IsAny<IFeedbackToApplication>())).Callback<IFeedbackToApplication>(f => WakekApplication.ApplicationFeedbackHandler(f));
+            applicationCommandExecutionContextMock.Setup(a => a.ReportAsync(It.IsAny<IFeedbackToApplication>()))
+                .Returns<IFeedbackToApplication>(async f => await WakekApplication.HandleFeedbackToApplicationAsync(f));
             ApplicationCommandExecutionContext = applicationCommandExecutionContextMock.Object;
         }
 
@@ -45,7 +47,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Test {
         public async Task ExecuteCommandCreatesExecutionAndState() {
             Assert.IsNotNull(WakekApplication);
             Assert.AreEqual(0, WakekApplication.BenchmarkExecutions.Count);
-            await WakekApplication.ApplicationCommandController.Execute(typeof(ExecuteCommand));
+            await WakekApplication.ApplicationCommandController.ExecuteAsync(typeof(ExecuteCommand));
             Assert.AreEqual(1, WakekApplication.BenchmarkExecutions.Count);
             var executionGuid = WakekApplication.BenchmarkExecutions[0].Guid;
             var states = GetStatesForExecution(executionGuid, 1);
@@ -61,15 +63,15 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Test {
             Assert.AreEqual(state.RemoteRequiringForHowManySeconds, displayedState.RemoteRequiringForHowManySeconds);
             Assert.AreEqual(state.Finished, displayedState.Finished);
 
-            var feedback = new FeedbackToApplication { Type = FeedbackType.ImportantMessage, Message = vContainer.Resolve<IXmlSerializer>().Serialize(state) };
-            WakekApplication.ApplicationFeedbackHandler(feedback, out var handled);
+            var feedback = new FeedbackToApplication { Type = FeedbackType.ImportantMessage, Message = Container.Resolve<IXmlSerializer>().Serialize(state) };
+            var handled = await WakekApplication.HandleFeedbackToApplicationReturnSuccessAsync(feedback);
             Assert.IsTrue(handled);
             GetStatesForExecution(executionGuid, 1);
 
-            var execution = vContainer.Resolve<IBenchmarkExecutionFactory>().CreateBenchmarkExecution(WakekApplication.BenchmarkDefinitions[0]);
-            state = vContainer.Resolve<IBenchmarkExecutionFactory>().CreateBenchmarkExecutionState(execution, 1) as BenchmarkExecutionState;
-            feedback = new FeedbackToApplication { Type = FeedbackType.ImportantMessage, Message = vContainer.Resolve<IXmlSerializer>().Serialize(state) };
-            WakekApplication.ApplicationFeedbackHandler(feedback, out handled);
+            var execution = Container.Resolve<IBenchmarkExecutionFactory>().CreateBenchmarkExecution(WakekApplication.BenchmarkDefinitions[0]);
+            state = Container.Resolve<IBenchmarkExecutionFactory>().CreateBenchmarkExecutionState(execution, 1) as BenchmarkExecutionState;
+            feedback = new FeedbackToApplication { Type = FeedbackType.ImportantMessage, Message = Container.Resolve<IXmlSerializer>().Serialize(state) };
+            handled = await WakekApplication.HandleFeedbackToApplicationReturnSuccessAsync(feedback);
             Assert.IsTrue(handled);
             GetStatesForExecution(2);
         }
@@ -79,7 +81,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Test {
             Assert.IsNotNull(WakekApplication);
             Assert.AreEqual(0, WakekApplication.BenchmarkExecutions.Count);
             WakekApplication.SelectBenchmarkDefinition(WakekApplication.BenchmarkDefinitions[1]);
-            await WakekApplication.ApplicationCommandController.Execute(typeof(ExecuteCommand));
+            await WakekApplication.ApplicationCommandController.ExecuteAsync(typeof(ExecuteCommand));
             Assert.AreEqual(1, WakekApplication.BenchmarkExecutions.Count);
             var executionGuid = WakekApplication.BenchmarkExecutions[0].Guid;
 
@@ -115,7 +117,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Test {
             var benchmarkDefinition = WakekApplication.BenchmarkDefinitions.FirstOrDefault(b => b.BenchmarkExecutionType == BenchmarkExecutionType.CsNative && !string.IsNullOrEmpty(b.Url));
             Assert.IsNotNull(benchmarkDefinition);
             WakekApplication.SelectBenchmarkDefinition(benchmarkDefinition);
-            await ExecuteCommand.Execute(ApplicationCommandExecutionContext);
+            await ExecuteCommand.ExecuteAsync(ApplicationCommandExecutionContext);
             VerifyExecutionStates();
         }
 
@@ -125,7 +127,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Test {
             Assert.IsNotNull(benchmarkDefinition);
             WakekApplication.SelectBenchmarkDefinition(benchmarkDefinition);
             HttpClientGetStringSucceeds = false;
-            await ExecuteCommand.Execute(ApplicationCommandExecutionContext);
+            await ExecuteCommand.ExecuteAsync(ApplicationCommandExecutionContext);
             VerifyExecutionStates();
         }
 
@@ -134,7 +136,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Test {
             var benchmarkDefinition = WakekApplication.BenchmarkDefinitions.FirstOrDefault(b => b.BenchmarkExecutionType == BenchmarkExecutionType.JavaScript && !string.IsNullOrEmpty(b.Url));
             Assert.IsNotNull(benchmarkDefinition);
             WakekApplication.SelectBenchmarkDefinition(benchmarkDefinition);
-            await ExecuteCommand.Execute(ApplicationCommandExecutionContext);
+            await ExecuteCommand.ExecuteAsync(ApplicationCommandExecutionContext);
             VerifyExecutionStates();
         }
 

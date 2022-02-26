@@ -30,10 +30,23 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Test {
                 new TelemetryData { ExecutingForHowManyMilliSeconds = 24, RequiringForHowManyMilliSeconds = 7 }
             };
             telemetryDataReaderMock.Setup(t => t.ReadAsync(It.IsAny<IBenchmarkDefinition>())).Returns(Task.FromResult(result));
-            ApplicationCommandController = new ApplicationCommandController(ApplicationFeedbackHandler);
+            ApplicationCommandController = new ApplicationCommandController(HandleFeedbackToApplicationAsync);
             WrappedWakekApplication = new WakekApplication(ApplicationCommandController, ApplicationCommandController, SynchronizationContext.Current, NavigateToStringReturnContentAsNumber,
                 container.Resolve<ISecretRepository>(), container.Resolve<IXmlSerializedObjectReader>(), container.Resolve<IBenchmarkExecutionFactory>(),
                 container.Resolve<IXmlSerializer>(), telemetryDataReaderMock.Object, httpClientFactory);
+        }
+
+        public bool IsExecuting() { return WrappedWakekApplication.IsExecuting(); }
+        public IApplicationLog Log => WrappedWakekApplication.Log;
+        public BenchmarkDefinitions BenchmarkDefinitions => WrappedWakekApplication.BenchmarkDefinitions;
+        public IBenchmarkDefinition SelectedBenchmarkDefinition => WrappedWakekApplication.SelectedBenchmarkDefinition;
+        public ObservableCollection<IBenchmarkExecution> BenchmarkExecutions => WrappedWakekApplication.BenchmarkExecutions;
+        public ObservableCollection<IBenchmarkExecutionState> BenchmarkExecutionStates => WrappedWakekApplication.BenchmarkExecutionStates;
+        public ObservableCollection<IDisplayedBenchmarkExecutionState> DisplayedBenchmarkExecutionStates => WrappedWakekApplication.DisplayedBenchmarkExecutionStates;
+
+        public async Task SetBenchmarkDefinitionsAsync() {
+            await WrappedWakekApplication.SetBenchmarkDefinitionsAsync();
+
             WrappedWakekApplication.BenchmarkDefinitions.Clear();
             WrappedWakekApplication.BenchmarkDefinitions.Add(
                 new BenchmarkDefinition { BenchmarkExecutionType = BenchmarkExecutionType.CsNative, Description = "Wakek Test Benchmark", ExecutionTimeInSeconds = 2, Guid = TestBenchmarkGuid, NumberOfCallsInParallel = 1 }
@@ -49,20 +62,12 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Test {
             );
         }
 
-        public bool IsExecuting() { return WrappedWakekApplication.IsExecuting(); }
-        public IApplicationLog Log => WrappedWakekApplication.Log;
-        public BenchmarkDefinitions BenchmarkDefinitions => WrappedWakekApplication.BenchmarkDefinitions;
-        public IBenchmarkDefinition SelectedBenchmarkDefinition => WrappedWakekApplication.SelectedBenchmarkDefinition;
-        public ObservableCollection<IBenchmarkExecution> BenchmarkExecutions => WrappedWakekApplication.BenchmarkExecutions;
-        public ObservableCollection<IBenchmarkExecutionState> BenchmarkExecutionStates => WrappedWakekApplication.BenchmarkExecutionStates;
-        public ObservableCollection<IDisplayedBenchmarkExecutionState> DisplayedBenchmarkExecutionStates => WrappedWakekApplication.DisplayedBenchmarkExecutionStates;
-
-        public void ApplicationFeedbackHandler(IFeedbackToApplication feedback) {
-            ApplicationFeedbackHandler(feedback, out _);
+        public async Task HandleFeedbackToApplicationAsync(IFeedbackToApplication feedback) {
+            await HandleFeedbackToApplicationReturnSuccessAsync(feedback);
         }
 
-        public void ApplicationFeedbackHandler(IFeedbackToApplication feedback, out bool handled) {
-            WrappedWakekApplication.ApplicationFeedbackHandler(feedback, out handled);
+        public async Task<bool> HandleFeedbackToApplicationReturnSuccessAsync(IFeedbackToApplication feedback) {
+            return await WrappedWakekApplication.HandleFeedbackToApplicationReturnSuccessAsync(feedback);
         }
 
         public void SelectBenchmarkDefinition(IBenchmarkDefinition benchmarkDefinition) {

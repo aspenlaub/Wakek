@@ -1,4 +1,5 @@
-﻿using Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Application;
+﻿using System.Threading.Tasks;
+using Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Application;
 using Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Interfaces.Application;
 using Aspenlaub.Net.GitHub.CSharp.Wakek.Application;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -9,8 +10,9 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Test {
         protected WakekTestApplication Sut;
 
         [TestInitialize]
-        public void Initialize() {
+        public async Task Initialize() {
             Sut = new WakekTestApplication(null);
+            await Sut.SetBenchmarkDefinitionsAsync();
         }
 
         [TestMethod]
@@ -25,15 +27,15 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Test {
         }
 
         [TestMethod]
-        public void WakekTestApplicationHandlesLogAndCommandDisabledFeedback() {
+        public async Task WakekTestApplicationHandlesLogAndCommandDisabledFeedback() {
             var feedback = new FeedbackToApplication { Type = FeedbackType.LogWarning, Message = "Warning" };
-            Sut.ApplicationFeedbackHandler(feedback, out var handled);
+            var handled = await Sut.HandleFeedbackToApplicationReturnSuccessAsync(feedback);
             Assert.IsTrue(handled);
             feedback = new FeedbackToApplication { Type = FeedbackType.LogError, Message = "Error" };
-            Sut.ApplicationFeedbackHandler(feedback, out handled);
+            handled = await Sut.HandleFeedbackToApplicationReturnSuccessAsync(feedback);
             Assert.IsTrue(handled);
             feedback = new FeedbackToApplication { Type = FeedbackType.CommandIsDisabled, Message = "Disabled", CommandType = typeof(ExecuteCommand) };
-            Sut.ApplicationFeedbackHandler(feedback, out handled);
+            handled = await Sut.HandleFeedbackToApplicationReturnSuccessAsync(feedback);
             Assert.IsTrue(handled);
         }
     }

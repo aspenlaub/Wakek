@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
@@ -29,7 +30,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek {
         protected string HtmlOutputContentDivInnerHtml;
 
         public WakekWindow() {
-            Controller = new ApplicationCommandController(ApplicationFeedbackHandler);
+            Controller = new ApplicationCommandController(HandleFeedbackToApplicationAsync);
             UiSynchronizationContext = SynchronizationContext.Current;
             var container = new ContainerBuilder().UseWakek().Build();
             WakekApplication = new WakekApplication(Controller, Controller, UiSynchronizationContext, NavigateToStringReturnContentAsNumber,
@@ -39,23 +40,23 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek {
             InitializeComponent();
         }
 
-        public void ApplicationFeedbackHandler(IFeedbackToApplication feedback) {
-            WakekApplication.ApplicationFeedbackHandler(feedback, out var handled);
+        public async Task HandleFeedbackToApplicationAsync(IFeedbackToApplication feedback) {
+            var handled = await WakekApplication.HandleFeedbackToApplicationReturnSuccessAsync(feedback);
             if (handled) { return; }
 
             switch (feedback.Type) {
                 case FeedbackType.CommandExecutionCompleted: {
-                        CommandExecutionCompletedHandler(feedback);
-                    }
-                    break;
+                    CommandExecutionCompletedHandler(feedback);
+                } break;
                 case FeedbackType.CommandsEnabledOrDisabled: {
-                        CommandsEnabledOrDisabledHandler();
-                    }
-                    break;
+                    await CommandsEnabledOrDisabledHandlerAsync();
+                } break;
                 default: {
-                        throw new NotImplementedException();
-                    }
+                    throw new NotImplementedException();
+                }
             }
+
+            await Task.CompletedTask;
         }
 
         // ReSharper disable once UnusedParameter.Local
@@ -65,17 +66,20 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek {
             Cursor = Cursors.Arrow;
         }
 
-        public void CommandsEnabledOrDisabledHandler() {
-            Execute.IsEnabled = Controller.Enabled(typeof(ExecuteCommand));
+        public async Task CommandsEnabledOrDisabledHandlerAsync() {
+            Execute.IsEnabled = await Controller.EnabledAsync(typeof(ExecuteCommand));
         }
 
-        private void WakekWindow_OnLoaded(object sender, RoutedEventArgs e) {
+        private async void OnWakekWindowLoadedAsync(object sender, RoutedEventArgs e) {
+            await WakekApplication.SetBenchmarkDefinitionsAsync();
+
             WakekViewSources = new ViewSources(this);
             SetViewSource(WakekViewSources.BenchmarkDefinitionViewSource, WakekApplication.BenchmarkDefinitions, "Description", ListSortDirection.Ascending);
             SetViewSource(WakekViewSources.BenchmarkExecutionStateViewSource, WakekApplication.DisplayedBenchmarkExecutionStates, "SequenceNumber", ListSortDirection.Ascending);
             SetViewSource(WakekViewSources.LogViewSource, WakekApplication.Log.LogEntries, "SequenceNumber", ListSortDirection.Ascending);
-            CommandsEnabledOrDisabledHandler();
+            await CommandsEnabledOrDisabledHandlerAsync();
         }
+
         private void SetViewSource<T>(CollectionViewSource source, ObservableCollection<T> collection, string sortProperty, ListSortDirection sortDirection) {
             source.Source = collection;
             source.SortDescriptions.Clear();
@@ -84,7 +88,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek {
 
         private async void Execute_OnClick(object sender, RoutedEventArgs e) {
             Cursor = Cursors.Wait;
-            await Controller.Execute(typeof(ExecuteCommand));
+            await Controller.ExecuteAsync(typeof(ExecuteCommand));
         }
 
         private void SelectedBenchmarkDefinition_OnDropDownClosed(object sender, EventArgs e) {
@@ -95,16 +99,16 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek {
         private int NavigateToStringReturnContentAsNumber(string html) {
             if (UiSynchronizationContext == SynchronizationContext.Current) { return 0; }
 
-            UiSynchronizationContext.Post(state => RefreshWebBrowserContents(), null);
+            UiSynchronizationContext.Post(_ => RefreshWebBrowserContents(), null);
             Thread.Sleep(TimeSpan.FromMilliseconds(300));
             var initialContents = HtmlOutputContentDivInnerHtml ?? "..";
 
-            UiSynchronizationContext.Send(state => HtmlOutput.NavigateToString(html), null);
+            UiSynchronizationContext.Send(_ => HtmlOutput.NavigateToString(html), null);
             Thread.Sleep(TimeSpan.FromMilliseconds(1000));
             string oldContents;
             var newContents = "";
             do {
-                UiSynchronizationContext.Post(state => RefreshWebBrowserContents(), null);
+                UiSynchronizationContext.Post(_ => RefreshWebBrowserContents(), null);
                 Thread.Sleep(TimeSpan.FromMilliseconds(300));
 
                 oldContents = newContents;
