@@ -3,12 +3,11 @@ using Aspenlaub.Net.GitHub.CSharp.Wakek.Interfaces;
 
 namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Entities {
     public class SecretBenchmarkDefinitions : ISecret<BenchmarkDefinitions> {
-        private BenchmarkDefinitions vDefaultValue;
+        private BenchmarkDefinitions PrivateDefaultValue;
 
         public BenchmarkDefinitions DefaultValue
-            => vDefaultValue
-            ?? (vDefaultValue = new BenchmarkDefinitions {
-                new BenchmarkDefinition {
+            => PrivateDefaultValue ??= new BenchmarkDefinitions {
+                new() {
                     BenchmarkExecutionType = BenchmarkExecutionType.CsNative,
                     Description = "Hello World from viperfisch.de",
                     Url = "https://www.viperfisch.de/wakek/helloworld.php",
@@ -16,7 +15,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Entities {
                     NumberOfCallsInParallel = 1,
                     TelemetryUrl ="https://www.viperfisch.de/wakek/gettelemetry.php"
                 }
-            });
+            };
 
         public string Guid => "E050F157-6DB3-479A-BBA5-1DEC4F2786B6";
     }

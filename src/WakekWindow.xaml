@@ -3,17 +3,16 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:entities="clr-namespace:Aspenlaub.Net.GitHub.CSharp.Wakek.Entities;assembly=Aspenlaub.Net.GitHub.CSharp.Wakek.Entities"
-        xmlns:vishientities="clr-namespace:Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Entities.Application;assembly=Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Entities"
-        xmlns:entities1="clr-namespace:Aspenlaub.Net.GitHub.CSharp.Wakek.Entities"
+        xmlns:entities="clr-namespace:Aspenlaub.Net.GitHub.CSharp.Wakek.Entities"
         xmlns:application="clr-namespace:Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Entities.Application;assembly=Aspenlaub.Net.GitHub.CSharp.Vishizhukel"
+        xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
         mc:Ignorable="d"
         Title="Wakek" Icon="aspenlaub.ico" Background="Beige" Foreground="Teal"
         Width="1200" MinWidth="1200" Height="600"
         Loaded="OnWakekWindowLoadedAsync">
     <Window.Resources>
-        <CollectionViewSource x:Key="BenchmarkDefinitionViewSource" d:DesignSource="{d:DesignInstance {x:Type entities1:BenchmarkDefinition}, CreateList=True}"/>
-        <CollectionViewSource x:Key="BenchmarkExecutionStateViewSource" d:DesignSource="{d:DesignInstance {x:Type entities1:DisplayedBenchmarkExecutionState}, CreateList=True}"/>
+        <CollectionViewSource x:Key="BenchmarkDefinitionViewSource" d:DesignSource="{d:DesignInstance {x:Type entities:BenchmarkDefinition}, CreateList=True}"/>
+        <CollectionViewSource x:Key="BenchmarkExecutionStateViewSource" d:DesignSource="{d:DesignInstance {x:Type entities:DisplayedBenchmarkExecutionState}, CreateList=True}"/>
         <CollectionViewSource x:Key="LogViewSource" d:DesignSource="{d:DesignInstance {x:Type application:LogEntry}, CreateList=True}" />
         <Style x:Key="CellLeftAlign">
             <Setter Property="Control.HorizontalAlignment" Value="Left" />
@@ -45,13 +44,13 @@
                         Name="SelectedBenchmarkDefinition" 
                         ItemsSource="{Binding Source={StaticResource BenchmarkDefinitionViewSource}}"
                         DisplayMemberPath="Description"
-                        DropDownClosed="SelectedBenchmarkDefinition_OnDropDownClosed"
+                        DropDownClosed="OnSelectedBenchmarkDefinitionDropDownClosed"
                         />
                 </StackPanel>
-                <Button x:Name="Execute" Height="25" Width="100" Padding="0" Margin="10,10,0,10" Background="Transparent" ToolTip="Execute benchmark" Grid.Row="0" Grid.Column="1" Click="Execute_OnClick">
+                <Button x:Name="Execute" Height="25" Width="100" Padding="0" Margin="10,10,0,10" Background="Transparent" ToolTip="Execute benchmark" Grid.Row="0" Grid.Column="1" Click="OnExecuteClick">
                     _Execute
                 </Button>
-                <WebBrowser x:Name="HtmlOutput" Grid.Row="0" Grid.Column="2" Margin="10,10,0,10" Height="28" />
+                <wpf:WebView2 Name="WebView" Grid.Row="0" Grid.Column="2" Margin="10,10,0,10" Height="28" />
                 <DataGrid x:Name="BenchmarkExecutionStateGrid" AutoGenerateColumns="False" EnableRowVirtualization="True" 
                           ItemsSource="{Binding Source={StaticResource BenchmarkExecutionStateViewSource}}" 
                           RowDetailsVisibilityMode="VisibleWhenSelected" IsReadOnly="True"

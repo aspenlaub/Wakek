@@ -138,7 +138,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
 
             // var task = Task.Factory.StartNew(() => ContextOwner.NavigateToStringReturnContentAsNumber(html));
             // return await task.ContinueWith(t => JavaScriptFinishedAsync(t, context, executionStart, benchmarkExecutionState));
-            return await JavaScriptFinishedAsync(ContextOwner.NavigateToStringReturnContentAsNumber(html), context, executionStart, benchmarkExecutionState);
+            return await JavaScriptFinishedAsync(await ContextOwner.NavigateToStringReturnContentAsNumberAsync(html), context, executionStart, benchmarkExecutionState);
         }
 
         private async Task<BenchmarkExecutionState> JavaScriptFinishedAsync(int contentAsNumber, IApplicationCommandExecutionContext context, DateTime executionStart, BenchmarkExecutionState benchmarkExecutionState) {
@@ -156,8 +156,9 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
         }
 
         private async Task<ExtendedBenchmarkExecutionState> BeginExecuteForThreadAsync(IApplicationCommandExecutionContext context, IBenchmarkDefinition benchmarkDefinition, IBenchmarkExecution benchmarkExecution, int threadNumber, DateTime executionStart) {
-            var result = new ExtendedBenchmarkExecutionState();
-            result.BenchmarkExecutionState = BenchmarkExecutionFactory.CreateBenchmarkExecutionState(benchmarkExecution, threadNumber) as BenchmarkExecutionState;
+            var result = new ExtendedBenchmarkExecutionState {
+                BenchmarkExecutionState = BenchmarkExecutionFactory.CreateBenchmarkExecutionState(benchmarkExecution, threadNumber) as BenchmarkExecutionState
+            };
             if (result.BenchmarkExecutionState == null) {
                 throw new NullReferenceException();
             }

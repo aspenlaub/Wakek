@@ -107,7 +107,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Test {
 
         private IList<IDisplayedBenchmarkExecutionState> GetDisplayedStatesForExecution(int expectedStates) {
             IList<IDisplayedBenchmarkExecutionState> states = null;
-            Wait.Until(() => (states = WakekApplication.GetObservableCollectionSnapshot(s => true, () => WakekApplication.DisplayedBenchmarkExecutionStates)).Count == expectedStates, TimeSpan.FromSeconds(1));
+            Wait.Until(() => (states = WakekApplication.GetObservableCollectionSnapshot(_ => true, () => WakekApplication.DisplayedBenchmarkExecutionStates)).Count == expectedStates, TimeSpan.FromSeconds(1));
             Assert.AreEqual(expectedStates, states.Count);
             return states;
         }

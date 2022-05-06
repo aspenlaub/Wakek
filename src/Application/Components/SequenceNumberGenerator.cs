@@ -5,7 +5,7 @@ using Aspenlaub.Net.GitHub.CSharp.Wakek.Interfaces.Components;
 namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application.Components {
     public class SequenceNumberGenerator : ISequenceNumberGenerator {
         protected IDictionary<string, int> NextSequenceNumbers;
-        protected object LockObject = new object();
+        protected object LockObject = new();
 
         public SequenceNumberGenerator() {
             NextSequenceNumbers = new ConcurrentDictionary<string, int>();

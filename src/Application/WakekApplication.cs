@@ -21,7 +21,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
         protected IApplicationCommandExecutionContext Context;
         protected SynchronizationContext UiSynchronizationContext;
         protected ISecretRepository SecretRepository;
-        public Func<string, int> NavigateToStringReturnContentAsNumber { get; }
+        public Func<string, Task<int>> NavigateToStringReturnContentAsNumberAsync { get; }
         public IApplicationLog Log { get; }
 
         public BenchmarkDefinitions BenchmarkDefinitions { get; private set; }
@@ -30,19 +30,19 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application {
         public ObservableCollection<IBenchmarkExecutionState> BenchmarkExecutionStates { get; private set; }
         public ObservableCollection<IDisplayedBenchmarkExecutionState> DisplayedBenchmarkExecutionStates { get; private set; }
 
-        protected static object LockObject = new object();
+        protected static object LockObject = new();
 
         private readonly IXmlSerializedObjectReader XmlSerializedObjectReader;
 
         protected int NextSequenceNumber;
 
-        public WakekApplication(IApplicationCommandController controller, IApplicationCommandExecutionContext context, SynchronizationContext uiSynchronizationContext, Func<string, int> navigateToStringReturnContentAsNumber,
+        public WakekApplication(IApplicationCommandController controller, IApplicationCommandExecutionContext context, SynchronizationContext uiSynchronizationContext, Func<string, Task<int>> navigateToStringReturnContentAsNumberAsync,
                 ISecretRepository secretRepository, IXmlSerializedObjectReader xmlSerializedObjectReader, IBenchmarkExecutionFactory benchmarkExecutionFactory,
                 IXmlSerializer xmlSerializer, ITelemetryDataReader telemetryDataReader, IHttpClientFactory httpClientFactory) {
             Controller = controller;
             Context = context;
             UiSynchronizationContext = uiSynchronizationContext;
-            NavigateToStringReturnContentAsNumber = navigateToStringReturnContentAsNumber;
+            NavigateToStringReturnContentAsNumberAsync = navigateToStringReturnContentAsNumberAsync;
             XmlSerializedObjectReader = xmlSerializedObjectReader;
             Log = new ApplicationLog();
             NextSequenceNumber = 1;

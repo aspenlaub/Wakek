@@ -14,8 +14,6 @@ using Aspenlaub.Net.GitHub.CSharp.Wakek.Application.Components;
 using Aspenlaub.Net.GitHub.CSharp.Wakek.Interfaces;
 using Aspenlaub.Net.GitHub.CSharp.Wakek.Interfaces.Components;
 using Autofac;
-using mshtml;
-#pragma warning disable 4014
 
 namespace Aspenlaub.Net.GitHub.CSharp.Wakek {
     /// <summary>
@@ -86,30 +84,31 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek {
             source.SortDescriptions.Add(new SortDescription(sortProperty, sortDirection));
         }
 
-        private async void Execute_OnClick(object sender, RoutedEventArgs e) {
+        private async void OnExecuteClick(object sender, RoutedEventArgs e) {
             Cursor = Cursors.Wait;
+            await WebView.EnsureCoreWebView2Async();
             await Controller.ExecuteAsync(typeof(ExecuteCommand));
         }
 
-        private void SelectedBenchmarkDefinition_OnDropDownClosed(object sender, EventArgs e) {
+        private void OnSelectedBenchmarkDefinitionDropDownClosed(object sender, EventArgs e) {
             var item = SelectedBenchmarkDefinition.SelectedItem as IBenchmarkDefinition;
             WakekApplication.SelectBenchmarkDefinition(item);
         }
 
-        private int NavigateToStringReturnContentAsNumber(string html) {
+        private async Task<int> NavigateToStringReturnContentAsNumber(string html) {
             if (UiSynchronizationContext == SynchronizationContext.Current) { return 0; }
 
-            UiSynchronizationContext.Post(_ => RefreshWebBrowserContents(), null);
-            Thread.Sleep(TimeSpan.FromMilliseconds(300));
+            await RefreshWebBrowserContentsAsync();
+            await Task.Delay(TimeSpan.FromMilliseconds(300));
             var initialContents = HtmlOutputContentDivInnerHtml ?? "..";
 
-            UiSynchronizationContext.Send(_ => HtmlOutput.NavigateToString(html), null);
-            Thread.Sleep(TimeSpan.FromMilliseconds(1000));
+            UiSynchronizationContext.Send(_ => WebView.NavigateToString(html), null);
+            await Task.Delay(TimeSpan.FromMilliseconds(1000));
             string oldContents;
             var newContents = "";
             do {
-                UiSynchronizationContext.Post(_ => RefreshWebBrowserContents(), null);
-                Thread.Sleep(TimeSpan.FromMilliseconds(300));
+                await RefreshWebBrowserContentsAsync();
+                await Task.Delay(TimeSpan.FromMilliseconds(300));
 
                 oldContents = newContents;
                 newContents = HtmlOutputContentDivInnerHtml ?? "..";
@@ -122,12 +121,8 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek {
             return result;
         }
 
-        private void RefreshWebBrowserContents() {
-            var document = (HTMLDocumentClass)HtmlOutput.Document;
-            if (document?.body == null) { return; }
-
-            var element = document.getElementById("content");
-            HtmlOutputContentDivInnerHtml = element?.innerHTML;
+        private async Task RefreshWebBrowserContentsAsync() {
+            HtmlOutputContentDivInnerHtml = await WebView.ExecuteScriptAsync("document.getElementById('content').innerHTML");
         }
     }
 }

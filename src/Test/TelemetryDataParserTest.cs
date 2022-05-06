@@ -9,15 +9,15 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Test {
         [TestMethod]
         public void CanParseTelemetryData() {
             var sut = new TelemetryDataParser();
-            using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Aspenlaub.Net.GitHub.CSharp.Wakek.Test.telemetrydata.csv")) {
-                Assert.IsNotNull(stream);
-                using (var reader = new StreamReader(stream)) {
-                    Assert.IsTrue(sut.TryParse(reader.ReadToEnd(), out var result));
-                    Assert.AreEqual(39, result.Count);
-                    Assert.AreEqual(27, result[0].RequiringForHowManyMilliSeconds);
-                    Assert.AreEqual(23, result[result.Count - 1].ExecutingForHowManyMilliSeconds);
-                }
-            }
+            using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Aspenlaub.Net.GitHub.CSharp.Wakek.Test.telemetrydata.csv");
+
+            Assert.IsNotNull(stream);
+            using var reader = new StreamReader(stream);
+
+            Assert.IsTrue(sut.TryParse(reader.ReadToEnd(), out var result));
+            Assert.AreEqual(39, result.Count);
+            Assert.AreEqual(27, result[0].RequiringForHowManyMilliSeconds);
+            Assert.AreEqual(23, result[^1].ExecutingForHowManyMilliSeconds);
         }
 
         [TestMethod]

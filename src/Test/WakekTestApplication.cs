@@ -31,7 +31,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Test {
             };
             telemetryDataReaderMock.Setup(t => t.ReadAsync(It.IsAny<IBenchmarkDefinition>())).Returns(Task.FromResult(result));
             ApplicationCommandController = new ApplicationCommandController(HandleFeedbackToApplicationAsync);
-            WrappedWakekApplication = new WakekApplication(ApplicationCommandController, ApplicationCommandController, SynchronizationContext.Current, NavigateToStringReturnContentAsNumber,
+            WrappedWakekApplication = new WakekApplication(ApplicationCommandController, ApplicationCommandController, SynchronizationContext.Current, NavigateToStringReturnContentAsNumberAsync,
                 container.Resolve<ISecretRepository>(), container.Resolve<IXmlSerializedObjectReader>(), container.Resolve<IBenchmarkExecutionFactory>(),
                 container.Resolve<IXmlSerializer>(), telemetryDataReaderMock.Object, httpClientFactory);
         }
@@ -78,6 +78,6 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Test {
             return WrappedWakekApplication.GetObservableCollectionSnapshot(criteria, getObservableCollection);
         }
 
-        public Func<string, int> NavigateToStringReturnContentAsNumber => html => { return 1; };
+        public Func<string, Task<int>> NavigateToStringReturnContentAsNumberAsync => async _ => { return await Task.FromResult(1); };
     }
 }

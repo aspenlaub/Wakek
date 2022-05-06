@@ -5,14 +5,14 @@ using Moq;
 
 namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Test {
     public class FakeHttpClientFactory : IHttpClientFactory {
-        private readonly Func<bool> vHttpClientGetStringSucceeds;
+        private readonly Func<bool> HttpClientGetStringSucceeds;
 
         public FakeHttpClientFactory(Func<bool> httpClientGetStringSucceeds) {
-            vHttpClientGetStringSucceeds = httpClientGetStringSucceeds;
+            HttpClientGetStringSucceeds = httpClientGetStringSucceeds;
         }
 
         private Task<string> HttpClientGetStringResult() {
-            if (vHttpClientGetStringSucceeds()) { return Task.FromResult("Hello World"); }
+            if (HttpClientGetStringSucceeds()) { return Task.FromResult("Hello World"); }
 
             throw new Exception("Http call failed");
         }
@@ -20,7 +20,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Test {
         public IHttpClient Create() {
             var httpClientMock = new Mock<IHttpClient>();
             httpClientMock.SetupGet(h => h.BaseAddress);
-            httpClientMock.Setup(h => h.GetStringAsync(It.IsAny<string>())).Returns<string>(s => HttpClientGetStringResult());
+            httpClientMock.Setup(h => h.GetStringAsync(It.IsAny<string>())).Returns<string>(_ => HttpClientGetStringResult());
             return httpClientMock.Object;
         }
     }
