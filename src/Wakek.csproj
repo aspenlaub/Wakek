@@ -41,7 +41,7 @@
   <ItemGroup>
     <PackageReference Include="CsvHelper" Version="27.2.1" />
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.1210.39" />
-    <PackageReference Include="Vishizhukel" Version="2.0.948.497" />
+    <PackageReference Include="Vishizhukel" Version="2.0.1022.589" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Properties\Resources.Designer.cs">
