@@ -14,70 +14,74 @@ using Aspenlaub.Net.GitHub.CSharp.Wakek.Interfaces.Components;
 using Autofac;
 using Moq;
 
-namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Test {
-    public class WakekTestApplication : IWakekApplication {
-        protected readonly IWakekApplication WrappedWakekApplication;
-        public readonly ApplicationCommandController ApplicationCommandController;
+namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Test;
 
-        public const string TestBenchmarkGuid = "E87C2B16-8EBD-517F-A5DA-6F915FFD4E60";
-        public const string TestParallelBenchmarkGuid = "F9B96A24-45B7-A4BA-32F1-B15D244EA141";
+public class WakekTestApplication : IWakekApplication {
+    protected readonly IWakekApplication WrappedWakekApplication;
+    public readonly ApplicationCommandController ApplicationCommandController;
 
-        public WakekTestApplication(IHttpClientFactory httpClientFactory) {
-            var container = new ContainerBuilder().UseWakek().Build();
-            // var componentProviderMock = new Mock<IWakekComponentProvider>();
-            var telemetryDataReaderMock = new Mock<ITelemetryDataReader>();
-            IList<ITelemetryData> result = new List<ITelemetryData> {
-                new TelemetryData { ExecutingForHowManyMilliSeconds = 24, RequiringForHowManyMilliSeconds = 7 }
-            };
-            telemetryDataReaderMock.Setup(t => t.ReadAsync(It.IsAny<IBenchmarkDefinition>())).Returns(Task.FromResult(result));
-            ApplicationCommandController = new ApplicationCommandController(HandleFeedbackToApplicationAsync);
-            WrappedWakekApplication = new WakekApplication(ApplicationCommandController, ApplicationCommandController, SynchronizationContext.Current, NavigateToStringReturnContentAsNumberAsync,
-                container.Resolve<ISecretRepository>(), container.Resolve<IXmlSerializedObjectReader>(), container.Resolve<IBenchmarkExecutionFactory>(),
-                container.Resolve<IXmlSerializer>(), telemetryDataReaderMock.Object, httpClientFactory);
-        }
+    public const string TestBenchmarkGuid = "E87C2B16-8EBD-517F-A5DA-6F915FFD4E60";
+    public const string TestParallelBenchmarkGuid = "F9B96A24-45B7-A4BA-32F1-B15D244EA141";
 
-        public bool IsExecuting() { return WrappedWakekApplication.IsExecuting(); }
-        public IApplicationLog Log => WrappedWakekApplication.Log;
-        public BenchmarkDefinitions BenchmarkDefinitions => WrappedWakekApplication.BenchmarkDefinitions;
-        public IBenchmarkDefinition SelectedBenchmarkDefinition => WrappedWakekApplication.SelectedBenchmarkDefinition;
-        public ObservableCollection<IBenchmarkExecution> BenchmarkExecutions => WrappedWakekApplication.BenchmarkExecutions;
-        public ObservableCollection<IBenchmarkExecutionState> BenchmarkExecutionStates => WrappedWakekApplication.BenchmarkExecutionStates;
-        public ObservableCollection<IDisplayedBenchmarkExecutionState> DisplayedBenchmarkExecutionStates => WrappedWakekApplication.DisplayedBenchmarkExecutionStates;
-
-        public async Task SetBenchmarkDefinitionsAsync() {
-            await WrappedWakekApplication.SetBenchmarkDefinitionsAsync();
-
-            WrappedWakekApplication.BenchmarkDefinitions.Clear();
-            WrappedWakekApplication.BenchmarkDefinitions.Add(
-                new BenchmarkDefinition { BenchmarkExecutionType = BenchmarkExecutionType.CsNative, Description = "Wakek Test Benchmark", ExecutionTimeInSeconds = 2, Guid = TestBenchmarkGuid, NumberOfCallsInParallel = 1 }
-            );
-            WrappedWakekApplication.BenchmarkDefinitions.Add(
-                new BenchmarkDefinition { BenchmarkExecutionType = BenchmarkExecutionType.CsNative, Description = "Wakek Test Parallel Benchmark", ExecutionTimeInSeconds = 2, Guid = TestParallelBenchmarkGuid, NumberOfCallsInParallel = 2 }
-            );
-            WrappedWakekApplication.BenchmarkDefinitions.Add(
-                new BenchmarkDefinition { BenchmarkExecutionType = BenchmarkExecutionType.CsNative, Description = "Wakek Test Benchmark With Url", ExecutionTimeInSeconds = 0, Guid = Guid.NewGuid().ToString(), NumberOfCallsInParallel = 1, Url = @"https://www.viperfisch.de/wakek/helloworld.php", TelemetryUrl = "" }
-            );
-            WrappedWakekApplication.BenchmarkDefinitions.Add(
-                new BenchmarkDefinition { BenchmarkExecutionType = BenchmarkExecutionType.JavaScript, Description = "Wakek Test JavaScript With Url", ExecutionTimeInSeconds = 0, Guid = Guid.NewGuid().ToString(), NumberOfCallsInParallel = 1, Url = @"https://www.viperfisch.de/wakek/helloworld.php", TelemetryUrl = "" }
-            );
-        }
-
-        public async Task HandleFeedbackToApplicationAsync(IFeedbackToApplication feedback) {
-            await HandleFeedbackToApplicationReturnSuccessAsync(feedback);
-        }
-
-        public async Task<bool> HandleFeedbackToApplicationReturnSuccessAsync(IFeedbackToApplication feedback) {
-            return await WrappedWakekApplication.HandleFeedbackToApplicationReturnSuccessAsync(feedback);
-        }
-
-        public void SelectBenchmarkDefinition(IBenchmarkDefinition benchmarkDefinition) {
-            WrappedWakekApplication.SelectBenchmarkDefinition(benchmarkDefinition);
-        }
-
-        public IList<T> GetObservableCollectionSnapshot<T>(Func<T, bool> criteria, Func<IList<T>> getObservableCollection) {
-            return WrappedWakekApplication.GetObservableCollectionSnapshot(criteria, getObservableCollection);
-        }
-
-        public Func<string, Task<int>> NavigateToStringReturnContentAsNumberAsync => async _ => { return await Task.FromResult(1); };
+    public WakekTestApplication(IHttpClientFactory httpClientFactory) {
+        var container = new ContainerBuilder().UseWakek().Build();
+        // var componentProviderMock = new Mock<IWakekComponentProvider>();
+        var telemetryDataReaderMock = new Mock<ITelemetryDataReader>();
+        IList<ITelemetryData> result = new List<ITelemetryData> {
+            new TelemetryData { ExecutingForHowManyMilliSeconds = 24, RequiringForHowManyMilliSeconds = 7 }
+        };
+        telemetryDataReaderMock.Setup(t => t.ReadAsync(It.IsAny<IBenchmarkDefinition>())).Returns(Task.FromResult(result));
+        ApplicationCommandController = new ApplicationCommandController(HandleFeedbackToApplicationAsync);
+        var logConfigurationFactory = container.Resolve<ILogConfigurationFactory>();
+        var logConfiguration = logConfigurationFactory.Create();
+        var simpleLogger = container.Resolve<ISimpleLogger>();
+        simpleLogger.LogSubFolder = logConfiguration.LogSubFolder;
+        WrappedWakekApplication = new WakekApplication(ApplicationCommandController, ApplicationCommandController, SynchronizationContext.Current, NavigateToStringReturnContentAsNumberAsync,
+            container.Resolve<ISecretRepository>(), container.Resolve<IXmlSerializedObjectReader>(), container.Resolve<IBenchmarkExecutionFactory>(),
+            container.Resolve<IXmlSerializer>(), telemetryDataReaderMock.Object, httpClientFactory, simpleLogger);
     }
+
+    public bool IsExecuting() { return WrappedWakekApplication.IsExecuting(); }
+    public ISimpleLogger SimpleLogger => WrappedWakekApplication.SimpleLogger;
+    public BenchmarkDefinitions BenchmarkDefinitions => WrappedWakekApplication.BenchmarkDefinitions;
+    public IBenchmarkDefinition SelectedBenchmarkDefinition => WrappedWakekApplication.SelectedBenchmarkDefinition;
+    public ObservableCollection<IBenchmarkExecution> BenchmarkExecutions => WrappedWakekApplication.BenchmarkExecutions;
+    public ObservableCollection<IBenchmarkExecutionState> BenchmarkExecutionStates => WrappedWakekApplication.BenchmarkExecutionStates;
+    public ObservableCollection<IDisplayedBenchmarkExecutionState> DisplayedBenchmarkExecutionStates => WrappedWakekApplication.DisplayedBenchmarkExecutionStates;
+
+    public async Task SetBenchmarkDefinitionsAsync() {
+        await WrappedWakekApplication.SetBenchmarkDefinitionsAsync();
+
+        WrappedWakekApplication.BenchmarkDefinitions.Clear();
+        WrappedWakekApplication.BenchmarkDefinitions.Add(
+            new BenchmarkDefinition { BenchmarkExecutionType = BenchmarkExecutionType.CsNative, Description = "Wakek Test Benchmark", ExecutionTimeInSeconds = 2, Guid = TestBenchmarkGuid, NumberOfCallsInParallel = 1 }
+        );
+        WrappedWakekApplication.BenchmarkDefinitions.Add(
+            new BenchmarkDefinition { BenchmarkExecutionType = BenchmarkExecutionType.CsNative, Description = "Wakek Test Parallel Benchmark", ExecutionTimeInSeconds = 2, Guid = TestParallelBenchmarkGuid, NumberOfCallsInParallel = 2 }
+        );
+        WrappedWakekApplication.BenchmarkDefinitions.Add(
+            new BenchmarkDefinition { BenchmarkExecutionType = BenchmarkExecutionType.CsNative, Description = "Wakek Test Benchmark With Url", ExecutionTimeInSeconds = 0, Guid = Guid.NewGuid().ToString(), NumberOfCallsInParallel = 1, Url = @"https://www.viperfisch.de/wakek/helloworld.php", TelemetryUrl = "" }
+        );
+        WrappedWakekApplication.BenchmarkDefinitions.Add(
+            new BenchmarkDefinition { BenchmarkExecutionType = BenchmarkExecutionType.JavaScript, Description = "Wakek Test JavaScript With Url", ExecutionTimeInSeconds = 0, Guid = Guid.NewGuid().ToString(), NumberOfCallsInParallel = 1, Url = @"https://www.viperfisch.de/wakek/helloworld.php", TelemetryUrl = "" }
+        );
+    }
+
+    public async Task HandleFeedbackToApplicationAsync(IFeedbackToApplication feedback) {
+        await HandleFeedbackToApplicationReturnSuccessAsync(feedback);
+    }
+
+    public async Task<bool> HandleFeedbackToApplicationReturnSuccessAsync(IFeedbackToApplication feedback) {
+        return await WrappedWakekApplication.HandleFeedbackToApplicationReturnSuccessAsync(feedback);
+    }
+
+    public void SelectBenchmarkDefinition(IBenchmarkDefinition benchmarkDefinition) {
+        WrappedWakekApplication.SelectBenchmarkDefinition(benchmarkDefinition);
+    }
+
+    public IList<T> GetObservableCollectionSnapshot<T>(Func<T, bool> criteria, Func<IList<T>> getObservableCollection) {
+        return WrappedWakekApplication.GetObservableCollectionSnapshot(criteria, getObservableCollection);
+    }
+
+    public Func<string, Task<int>> NavigateToStringReturnContentAsNumberAsync => async _ => { return await Task.FromResult(1); };
 }

@@ -1,5 +1,5 @@
-﻿namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Interfaces {
-    public enum BenchmarkExecutionType {
-        CsNative, JavaScript
-    }
+﻿namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Interfaces;
+
+public enum BenchmarkExecutionType {
+    CsNative, JavaScript
 }

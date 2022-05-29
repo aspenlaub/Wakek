@@ -15,114 +15,117 @@ using Aspenlaub.Net.GitHub.CSharp.Wakek.Interfaces;
 using Aspenlaub.Net.GitHub.CSharp.Wakek.Interfaces.Components;
 using Autofac;
 
-namespace Aspenlaub.Net.GitHub.CSharp.Wakek {
-    /// <summary>
-    /// Interaction logic for WakekWindow.xaml
-    /// </summary>
-    // ReSharper disable once UnusedMember.Global
-    public partial class WakekWindow {
-        protected ApplicationCommandController Controller;
-        protected WakekApplication WakekApplication;
-        protected ViewSources WakekViewSources;
-        protected SynchronizationContext UiSynchronizationContext;
-        protected string HtmlOutputContentDivInnerHtml;
+namespace Aspenlaub.Net.GitHub.CSharp.Wakek;
 
-        public WakekWindow() {
-            Controller = new ApplicationCommandController(HandleFeedbackToApplicationAsync);
-            UiSynchronizationContext = SynchronizationContext.Current;
-            var container = new ContainerBuilder().UseWakek().Build();
-            WakekApplication = new WakekApplication(Controller, Controller, UiSynchronizationContext, NavigateToStringReturnContentAsNumber,
-                container.Resolve<ISecretRepository>(), container.Resolve<IXmlSerializedObjectReader>(), container.Resolve<IBenchmarkExecutionFactory>(),
-                container.Resolve<IXmlSerializer>(), container.Resolve<ITelemetryDataReader>(), container.Resolve<IHttpClientFactory>());
+/// <summary>
+/// Interaction logic for WakekWindow.xaml
+/// </summary>
+// ReSharper disable once UnusedMember.Global
+public partial class WakekWindow {
+    protected ApplicationCommandController Controller;
+    protected WakekApplication WakekApplication;
+    protected ViewSources WakekViewSources;
+    protected SynchronizationContext UiSynchronizationContext;
+    protected string HtmlOutputContentDivInnerHtml;
 
-            InitializeComponent();
-        }
+    public WakekWindow() {
+        Controller = new ApplicationCommandController(HandleFeedbackToApplicationAsync);
+        UiSynchronizationContext = SynchronizationContext.Current;
+        var container = new ContainerBuilder().UseWakek().Build();
+        var logConfigurationFactory = container.Resolve<ILogConfigurationFactory>();
+        var logConfiguration = logConfigurationFactory.Create();
+        var simpleLogger = container.Resolve<ISimpleLogger>();
+        simpleLogger.LogSubFolder = logConfiguration.LogSubFolder;
+        WakekApplication = new WakekApplication(Controller, Controller, UiSynchronizationContext, NavigateToStringReturnContentAsNumber,
+            container.Resolve<ISecretRepository>(), container.Resolve<IXmlSerializedObjectReader>(), container.Resolve<IBenchmarkExecutionFactory>(),
+            container.Resolve<IXmlSerializer>(), container.Resolve<ITelemetryDataReader>(), container.Resolve<IHttpClientFactory>(), simpleLogger);
 
-        public async Task HandleFeedbackToApplicationAsync(IFeedbackToApplication feedback) {
-            var handled = await WakekApplication.HandleFeedbackToApplicationReturnSuccessAsync(feedback);
-            if (handled) { return; }
+        InitializeComponent();
+    }
 
-            switch (feedback.Type) {
-                case FeedbackType.CommandExecutionCompleted: {
-                    CommandExecutionCompletedHandler(feedback);
-                } break;
-                case FeedbackType.CommandsEnabledOrDisabled: {
-                    await CommandsEnabledOrDisabledHandlerAsync();
-                } break;
-                default: {
-                    throw new NotImplementedException();
-                }
+    public async Task HandleFeedbackToApplicationAsync(IFeedbackToApplication feedback) {
+        var handled = await WakekApplication.HandleFeedbackToApplicationReturnSuccessAsync(feedback);
+        if (handled) { return; }
+
+        switch (feedback.Type) {
+            case FeedbackType.CommandExecutionCompleted: {
+                CommandExecutionCompletedHandler(feedback);
+            } break;
+            case FeedbackType.CommandsEnabledOrDisabled: {
+                await CommandsEnabledOrDisabledHandlerAsync();
+            } break;
+            default: {
+                throw new NotImplementedException();
             }
-
-            await Task.CompletedTask;
         }
 
-        // ReSharper disable once UnusedParameter.Local
-        private void CommandExecutionCompletedHandler(IFeedbackToApplication feedback) {
-            if (!Controller.IsMainThread()) { return; }
+        await Task.CompletedTask;
+    }
 
-            Cursor = Cursors.Arrow;
-        }
+    // ReSharper disable once UnusedParameter.Local
+    private void CommandExecutionCompletedHandler(IFeedbackToApplication feedback) {
+        if (!Controller.IsMainThread()) { return; }
 
-        public async Task CommandsEnabledOrDisabledHandlerAsync() {
-            Execute.IsEnabled = await Controller.EnabledAsync(typeof(ExecuteCommand));
-        }
+        Cursor = Cursors.Arrow;
+    }
 
-        private async void OnWakekWindowLoadedAsync(object sender, RoutedEventArgs e) {
-            await WakekApplication.SetBenchmarkDefinitionsAsync();
+    public async Task CommandsEnabledOrDisabledHandlerAsync() {
+        Execute.IsEnabled = await Controller.EnabledAsync(typeof(ExecuteCommand));
+    }
 
-            WakekViewSources = new ViewSources(this);
-            SetViewSource(WakekViewSources.BenchmarkDefinitionViewSource, WakekApplication.BenchmarkDefinitions, "Description", ListSortDirection.Ascending);
-            SetViewSource(WakekViewSources.BenchmarkExecutionStateViewSource, WakekApplication.DisplayedBenchmarkExecutionStates, "SequenceNumber", ListSortDirection.Ascending);
-            SetViewSource(WakekViewSources.LogViewSource, WakekApplication.Log.LogEntries, "SequenceNumber", ListSortDirection.Ascending);
-            await CommandsEnabledOrDisabledHandlerAsync();
-        }
+    private async void OnWakekWindowLoadedAsync(object sender, RoutedEventArgs e) {
+        await WakekApplication.SetBenchmarkDefinitionsAsync();
 
-        private void SetViewSource<T>(CollectionViewSource source, ObservableCollection<T> collection, string sortProperty, ListSortDirection sortDirection) {
-            source.Source = collection;
-            source.SortDescriptions.Clear();
-            source.SortDescriptions.Add(new SortDescription(sortProperty, sortDirection));
-        }
+        WakekViewSources = new ViewSources(this);
+        SetViewSource(WakekViewSources.BenchmarkDefinitionViewSource, WakekApplication.BenchmarkDefinitions, "Description", ListSortDirection.Ascending);
+        SetViewSource(WakekViewSources.BenchmarkExecutionStateViewSource, WakekApplication.DisplayedBenchmarkExecutionStates, "SequenceNumber", ListSortDirection.Ascending);
+        await CommandsEnabledOrDisabledHandlerAsync();
+    }
 
-        private async void OnExecuteClick(object sender, RoutedEventArgs e) {
-            Cursor = Cursors.Wait;
-            await WebView.EnsureCoreWebView2Async();
-            await Controller.ExecuteAsync(typeof(ExecuteCommand));
-        }
+    private void SetViewSource<T>(CollectionViewSource source, ObservableCollection<T> collection, string sortProperty, ListSortDirection sortDirection) {
+        source.Source = collection;
+        source.SortDescriptions.Clear();
+        source.SortDescriptions.Add(new SortDescription(sortProperty, sortDirection));
+    }
 
-        private void OnSelectedBenchmarkDefinitionDropDownClosed(object sender, EventArgs e) {
-            var item = SelectedBenchmarkDefinition.SelectedItem as IBenchmarkDefinition;
-            WakekApplication.SelectBenchmarkDefinition(item);
-        }
+    private async void OnExecuteClick(object sender, RoutedEventArgs e) {
+        Cursor = Cursors.Wait;
+        await WebView.EnsureCoreWebView2Async();
+        await Controller.ExecuteAsync(typeof(ExecuteCommand));
+    }
 
-        private async Task<int> NavigateToStringReturnContentAsNumber(string html) {
-            if (UiSynchronizationContext == SynchronizationContext.Current) { return 0; }
+    private void OnSelectedBenchmarkDefinitionDropDownClosed(object sender, EventArgs e) {
+        var item = SelectedBenchmarkDefinition.SelectedItem as IBenchmarkDefinition;
+        WakekApplication.SelectBenchmarkDefinition(item);
+    }
 
+    private async Task<int> NavigateToStringReturnContentAsNumber(string html) {
+        if (UiSynchronizationContext == SynchronizationContext.Current) { return 0; }
+
+        await RefreshWebBrowserContentsAsync();
+        await Task.Delay(TimeSpan.FromMilliseconds(300));
+        var initialContents = HtmlOutputContentDivInnerHtml ?? "..";
+
+        UiSynchronizationContext.Send(_ => WebView.NavigateToString(html), null);
+        await Task.Delay(TimeSpan.FromMilliseconds(1000));
+        string oldContents;
+        var newContents = "";
+        do {
             await RefreshWebBrowserContentsAsync();
             await Task.Delay(TimeSpan.FromMilliseconds(300));
-            var initialContents = HtmlOutputContentDivInnerHtml ?? "..";
 
-            UiSynchronizationContext.Send(_ => WebView.NavigateToString(html), null);
-            await Task.Delay(TimeSpan.FromMilliseconds(1000));
-            string oldContents;
-            var newContents = "";
-            do {
-                await RefreshWebBrowserContentsAsync();
-                await Task.Delay(TimeSpan.FromMilliseconds(300));
+            oldContents = newContents;
+            newContents = HtmlOutputContentDivInnerHtml ?? "..";
+            if (newContents != initialContents) {
+                initialContents = "..";
+            }
+        } while (oldContents != newContents || newContents.Contains("..") || newContents == initialContents);
 
-                oldContents = newContents;
-                newContents = HtmlOutputContentDivInnerHtml ?? "..";
-                if (newContents != initialContents) {
-                    initialContents = "..";
-                }
-            } while (oldContents != newContents || newContents.Contains("..") || newContents == initialContents);
+        int.TryParse(newContents, out var result);
+        return result;
+    }
 
-            int.TryParse(newContents, out var result);
-            return result;
-        }
-
-        private async Task RefreshWebBrowserContentsAsync() {
-            HtmlOutputContentDivInnerHtml = await WebView.ExecuteScriptAsync("document.getElementById('content').innerHTML");
-        }
+    private async Task RefreshWebBrowserContentsAsync() {
+        HtmlOutputContentDivInnerHtml = await WebView.ExecuteScriptAsync("document.getElementById('content').innerHTML");
     }
 }

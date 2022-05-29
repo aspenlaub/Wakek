@@ -3,25 +3,25 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Aspenlaub.Net.GitHub.CSharp.Wakek.Interfaces.Components;
 
-namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application.Components {
-    public class HttpClientProxy : IHttpClient {
-        protected HttpClient HttpClient;
+namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application.Components;
 
-        public HttpClientProxy() {
-            HttpClient = new HttpClient();
-        }
+public class HttpClientProxy : IHttpClient {
+    protected HttpClient HttpClient;
 
-        public async Task<string> GetStringAsync(string url) {
-            return await HttpClient.GetStringAsync(url);
-        }
+    public HttpClientProxy() {
+        HttpClient = new HttpClient();
+    }
 
-        public Uri BaseAddress {
-            get => HttpClient.BaseAddress;
-            set => HttpClient.BaseAddress = value;
-        }
+    public async Task<string> GetStringAsync(string url) {
+        return await HttpClient.GetStringAsync(url);
+    }
 
-        public void Dispose() {
-            HttpClient.Dispose();
-        }
+    public Uri BaseAddress {
+        get => HttpClient.BaseAddress;
+        set => HttpClient.BaseAddress = value;
+    }
+
+    public void Dispose() {
+        HttpClient.Dispose();
     }
 }

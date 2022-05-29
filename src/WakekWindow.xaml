@@ -4,7 +4,6 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:entities="clr-namespace:Aspenlaub.Net.GitHub.CSharp.Wakek.Entities"
-        xmlns:application="clr-namespace:Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Entities.Application;assembly=Aspenlaub.Net.GitHub.CSharp.Vishizhukel"
         xmlns:wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
         mc:Ignorable="d"
         Title="Wakek" Icon="aspenlaub.ico" Background="Beige" Foreground="Teal"
@@ -13,7 +12,6 @@
     <Window.Resources>
         <CollectionViewSource x:Key="BenchmarkDefinitionViewSource" d:DesignSource="{d:DesignInstance {x:Type entities:BenchmarkDefinition}, CreateList=True}"/>
         <CollectionViewSource x:Key="BenchmarkExecutionStateViewSource" d:DesignSource="{d:DesignInstance {x:Type entities:DisplayedBenchmarkExecutionState}, CreateList=True}"/>
-        <CollectionViewSource x:Key="LogViewSource" d:DesignSource="{d:DesignInstance {x:Type application:LogEntry}, CreateList=True}" />
         <Style x:Key="CellLeftAlign">
             <Setter Property="Control.HorizontalAlignment" Value="Left" />
             <Setter Property="Control.VerticalAlignment" Value="Center" />
@@ -67,17 +65,6 @@
                     </DataGrid.Columns>
                 </DataGrid>
             </Grid>
-        </TabItem>
-        <TabItem x:Name="LogTab" Header="LOG" Padding="120,10,120,10" Foreground="Teal">
-            <DataGrid x:Name="LogDataGrid" AutoGenerateColumns="False" EnableRowVirtualization="True" 
-                      ItemsSource="{Binding Source={StaticResource LogViewSource}}" RowDetailsVisibilityMode="VisibleWhenSelected"
-                      Foreground="Teal" >
-                <DataGrid.Columns>
-                    <DataGridTextColumn x:Name="CreatedAtColumn" Binding="{Binding CreatedAt, StringFormat='{}{0:hh:mm:ss}'}" Header="Time" Width="10*" ElementStyle="{StaticResource CellLeftAlign}"/>
-                    <DataGridTextColumn x:Name="LogEntryClassColumn" Binding="{Binding Class}" Header="Class" Width="10*" ElementStyle="{StaticResource CellLeftAlign}"/>
-                    <DataGridTextColumn x:Name="MessageColumn" Binding="{Binding Message}" Header="Message" Width="60*" ElementStyle="{StaticResource CellLeftAlign}"/>
-                </DataGrid.Columns>
-            </DataGrid>
         </TabItem>
     </TabControl>
 </Window>
