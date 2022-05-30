@@ -50,20 +50,22 @@ public class WakekApplication : IWakekApplication {
     }
 
     public async Task SetBenchmarkDefinitionsAsync() {
-        var secret = new SecretBenchmarkDefinitions();
-        var errorsAndInfos = new ErrorsAndInfos();
-        BenchmarkDefinitions = await SecretRepository.GetAsync(secret, errorsAndInfos);
-        if (errorsAndInfos.AnyErrors()) {
-            throw new Exception(string.Join("\r\n", errorsAndInfos.Errors));
+        using (SimpleLogger.BeginScope(SimpleLoggingScopeId.Create(nameof(SetBenchmarkDefinitionsAsync), SimpleLogger.LogId))) {
+            var secret = new SecretBenchmarkDefinitions();
+            var errorsAndInfos = new ErrorsAndInfos();
+            BenchmarkDefinitions = await SecretRepository.GetAsync(secret, errorsAndInfos);
+            if (errorsAndInfos.AnyErrors()) {
+                throw new Exception(string.Join("\r\n", errorsAndInfos.Errors));
+            }
+
+            SelectedBenchmarkDefinition = BenchmarkDefinitions[0];
+            BenchmarkExecutions = new ObservableCollection<IBenchmarkExecution>();
+            BenchmarkExecutionStates = new ObservableCollection<IBenchmarkExecutionState>();
+            DisplayedBenchmarkExecutionStates = new ObservableCollection<IDisplayedBenchmarkExecutionState>();
+
+            BenchmarkDefinitions.CollectionChanged += BenchmarkDefinitionsOnCollectionChanged;
+            BenchmarkExecutionStates.CollectionChanged += BenchmarkExecutionStatesOnCollectionChanged;
         }
-
-        SelectedBenchmarkDefinition = BenchmarkDefinitions[0];
-        BenchmarkExecutions = new ObservableCollection<IBenchmarkExecution>();
-        BenchmarkExecutionStates = new ObservableCollection<IBenchmarkExecutionState>();
-        DisplayedBenchmarkExecutionStates = new ObservableCollection<IDisplayedBenchmarkExecutionState>();
-
-        BenchmarkDefinitions.CollectionChanged += BenchmarkDefinitionsOnCollectionChanged;
-        BenchmarkExecutionStates.CollectionChanged += BenchmarkExecutionStatesOnCollectionChanged;
     }
 
     private void BenchmarkExecutionStatesOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs notifyCollectionChangedEventArgs) {
@@ -115,41 +117,43 @@ public class WakekApplication : IWakekApplication {
     }
 
     public async Task<bool> HandleFeedbackToApplicationReturnSuccessAsync(IFeedbackToApplication feedback) {
-        var handled = true;
-        switch (feedback.Type) {
-            case FeedbackType.ImportantMessage: {
-                XmlSerializedObjectReader.IdentifyType(feedback.Message, out handled, out var feedbackSerializedObjectType);
-                if (!handled) { return false; }
+        using (SimpleLogger.BeginScope(SimpleLoggingScopeId.Create(nameof(HandleFeedbackToApplicationAsync), SimpleLogger.LogId))) {
+            var handled = true;
+            switch (feedback.Type) {
+                case FeedbackType.ImportantMessage: {
+                    XmlSerializedObjectReader.IdentifyType(feedback.Message, out handled, out var feedbackSerializedObjectType);
+                    if (!handled) { return false; }
 
-                if (feedbackSerializedObjectType == typeof(BenchmarkExecution)) {
-                    var benchmarkExecution = XmlSerializedObjectReader.Read<BenchmarkExecution>(feedback.Message);
-                    ReplaceOrAddToCollection(benchmarkExecution, BenchmarkExecutions);
-                } else if (feedbackSerializedObjectType == typeof(BenchmarkExecutionState)) {
-                    var benchmarkExecutionState = XmlSerializedObjectReader.Read<BenchmarkExecutionState>(feedback.Message);
-                    ReplaceOrAddToCollection(benchmarkExecutionState, BenchmarkExecutionStates);
-                } else {
+                    if (feedbackSerializedObjectType == typeof(BenchmarkExecution)) {
+                        var benchmarkExecution = XmlSerializedObjectReader.Read<BenchmarkExecution>(feedback.Message);
+                        ReplaceOrAddToCollection(benchmarkExecution, BenchmarkExecutions);
+                    } else if (feedbackSerializedObjectType == typeof(BenchmarkExecutionState)) {
+                        var benchmarkExecutionState = XmlSerializedObjectReader.Read<BenchmarkExecutionState>(feedback.Message);
+                        ReplaceOrAddToCollection(benchmarkExecutionState, BenchmarkExecutionStates);
+                    } else {
+                        handled = false;
+                    }
+                    // ReSharper disable once SeparateControlTransferStatement
+                } break;
+                case FeedbackType.LogInformation: {
+                    SimpleLogger.LogInformation(feedback.Message);
+                } break;
+                case FeedbackType.LogWarning: {
+                    SimpleLogger.LogWarning(feedback.Message);
+                } break;
+                case FeedbackType.LogError: {
+                    SimpleLogger.LogError(feedback.Message);
+                } break;
+                case FeedbackType.CommandIsDisabled: {
+                    SimpleLogger.LogError("Attempt to run disabled command " + feedback.CommandType);
+                } break;
+                default: {
                     handled = false;
-                }
-                // ReSharper disable once SeparateControlTransferStatement
-            } break;
-            case FeedbackType.LogInformation: {
-                SimpleLogger.LogInformation(feedback.Message);
-            } break;
-            case FeedbackType.LogWarning: {
-                SimpleLogger.LogWarning(feedback.Message);
-            } break;
-            case FeedbackType.LogError: {
-                SimpleLogger.LogError(feedback.Message);
-            } break;
-            case FeedbackType.CommandIsDisabled: {
-                SimpleLogger.LogError("Attempt to run disabled command " + feedback.CommandType);
-            } break;
-            default: {
-                handled = false;
-            } break;
-        }
+                } break;
+            }
 
-        return await Task.FromResult(handled);
+            return await Task.FromResult(handled);
+        }
     }
 
     private static void ReplaceOrAddToCollection<T>(T item, IList<T> collection) where T : IGuid {

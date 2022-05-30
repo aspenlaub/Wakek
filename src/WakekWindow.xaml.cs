@@ -32,10 +32,7 @@ public partial class WakekWindow {
         Controller = new ApplicationCommandController(HandleFeedbackToApplicationAsync);
         UiSynchronizationContext = SynchronizationContext.Current;
         var container = new ContainerBuilder().UseWakek().Build();
-        var logConfigurationFactory = container.Resolve<ILogConfigurationFactory>();
-        var logConfiguration = logConfigurationFactory.Create();
         var simpleLogger = container.Resolve<ISimpleLogger>();
-        simpleLogger.LogSubFolder = logConfiguration.LogSubFolder;
         WakekApplication = new WakekApplication(Controller, Controller, UiSynchronizationContext, NavigateToStringReturnContentAsNumber,
             container.Resolve<ISecretRepository>(), container.Resolve<IXmlSerializedObjectReader>(), container.Resolve<IBenchmarkExecutionFactory>(),
             container.Resolve<IXmlSerializer>(), container.Resolve<ITelemetryDataReader>(), container.Resolve<IHttpClientFactory>(), simpleLogger);

@@ -32,10 +32,7 @@ public class WakekTestApplication : IWakekApplication {
         };
         telemetryDataReaderMock.Setup(t => t.ReadAsync(It.IsAny<IBenchmarkDefinition>())).Returns(Task.FromResult(result));
         ApplicationCommandController = new ApplicationCommandController(HandleFeedbackToApplicationAsync);
-        var logConfigurationFactory = container.Resolve<ILogConfigurationFactory>();
-        var logConfiguration = logConfigurationFactory.Create();
         var simpleLogger = container.Resolve<ISimpleLogger>();
-        simpleLogger.LogSubFolder = logConfiguration.LogSubFolder;
         WrappedWakekApplication = new WakekApplication(ApplicationCommandController, ApplicationCommandController, SynchronizationContext.Current, NavigateToStringReturnContentAsNumberAsync,
             container.Resolve<ISecretRepository>(), container.Resolve<IXmlSerializedObjectReader>(), container.Resolve<IBenchmarkExecutionFactory>(),
             container.Resolve<IXmlSerializer>(), telemetryDataReaderMock.Object, httpClientFactory, simpleLogger);
