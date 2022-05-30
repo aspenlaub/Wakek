@@ -29,10 +29,10 @@ public partial class WakekWindow {
     protected string HtmlOutputContentDivInnerHtml;
 
     public WakekWindow() {
-        Controller = new ApplicationCommandController(HandleFeedbackToApplicationAsync);
-        UiSynchronizationContext = SynchronizationContext.Current;
         var container = new ContainerBuilder().UseWakek().Build();
         var simpleLogger = container.Resolve<ISimpleLogger>();
+        Controller = new ApplicationCommandController(simpleLogger, HandleFeedbackToApplicationAsync);
+        UiSynchronizationContext = SynchronizationContext.Current;
         WakekApplication = new WakekApplication(Controller, Controller, UiSynchronizationContext, NavigateToStringReturnContentAsNumber,
             container.Resolve<ISecretRepository>(), container.Resolve<IXmlSerializedObjectReader>(), container.Resolve<IBenchmarkExecutionFactory>(),
             container.Resolve<IXmlSerializer>(), container.Resolve<ITelemetryDataReader>(), container.Resolve<IHttpClientFactory>(), simpleLogger);
