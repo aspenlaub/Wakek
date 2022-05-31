@@ -7,11 +7,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Aspenlaub.Net.GitHub.CSharp.Wakek.Entities;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Entities;
+using Aspenlaub.Net.GitHub.CSharp.Pegh.Extensions;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces;
 using Aspenlaub.Net.GitHub.CSharp.Vishizhukel.Interfaces.Application;
 using Aspenlaub.Net.GitHub.CSharp.Wakek.Interfaces;
 using Aspenlaub.Net.GitHub.CSharp.Wakek.Interfaces.Components;
-using Microsoft.Extensions.Logging;
 
 namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application;
 
@@ -32,12 +32,14 @@ public class WakekApplication : IWakekApplication {
     protected static object LockObject = new();
 
     private readonly IXmlSerializedObjectReader XmlSerializedObjectReader;
+    private readonly IMethodNamesFromStackFramesExtractor MethodNamesFromStackFramesExtractor;
 
     protected int NextSequenceNumber;
 
     public WakekApplication(IApplicationCommandController controller, IApplicationCommandExecutionContext context, SynchronizationContext uiSynchronizationContext, Func<string, Task<int>> navigateToStringReturnContentAsNumberAsync,
-        ISecretRepository secretRepository, IXmlSerializedObjectReader xmlSerializedObjectReader, IBenchmarkExecutionFactory benchmarkExecutionFactory,
-        IXmlSerializer xmlSerializer, ITelemetryDataReader telemetryDataReader, IHttpClientFactory httpClientFactory, ISimpleLogger simpleLogger) {
+            ISecretRepository secretRepository, IXmlSerializedObjectReader xmlSerializedObjectReader, IBenchmarkExecutionFactory benchmarkExecutionFactory,
+            IXmlSerializer xmlSerializer, ITelemetryDataReader telemetryDataReader, IHttpClientFactory httpClientFactory, ISimpleLogger simpleLogger,
+            IMethodNamesFromStackFramesExtractor methodNamesFromStackFramesExtractor) {
         Controller = controller;
         Context = context;
         UiSynchronizationContext = uiSynchronizationContext;
@@ -46,6 +48,7 @@ public class WakekApplication : IWakekApplication {
         SimpleLogger = simpleLogger;
         NextSequenceNumber = 1;
         SecretRepository = secretRepository;
+        MethodNamesFromStackFramesExtractor = methodNamesFromStackFramesExtractor;
         Controller.AddCommand(new ExecuteCommand(this, benchmarkExecutionFactory, xmlSerializer, telemetryDataReader, httpClientFactory), true);
     }
 
@@ -118,6 +121,7 @@ public class WakekApplication : IWakekApplication {
 
     public async Task<bool> HandleFeedbackToApplicationReturnSuccessAsync(IFeedbackToApplication feedback) {
         using (SimpleLogger.BeginScope(SimpleLoggingScopeId.Create(nameof(HandleFeedbackToApplicationAsync), SimpleLogger.LogId))) {
+            var methodNamesFromStack = MethodNamesFromStackFramesExtractor.ExtractMethodNamesFromStackFrames();
             var handled = true;
             switch (feedback.Type) {
                 case FeedbackType.ImportantMessage: {
@@ -136,16 +140,16 @@ public class WakekApplication : IWakekApplication {
                     // ReSharper disable once SeparateControlTransferStatement
                 } break;
                 case FeedbackType.LogInformation: {
-                    SimpleLogger.LogInformation(feedback.Message);
+                    SimpleLogger.LogInformationWithCallStack(feedback.Message, methodNamesFromStack);
                 } break;
                 case FeedbackType.LogWarning: {
-                    SimpleLogger.LogWarning(feedback.Message);
+                    SimpleLogger.LogWarningWithCallStack(feedback.Message, methodNamesFromStack);
                 } break;
                 case FeedbackType.LogError: {
-                    SimpleLogger.LogError(feedback.Message);
+                    SimpleLogger.LogErrorWithCallStack(feedback.Message, methodNamesFromStack);
                 } break;
                 case FeedbackType.CommandIsDisabled: {
-                    SimpleLogger.LogError("Attempt to run disabled command " + feedback.CommandType);
+                    SimpleLogger.LogErrorWithCallStack("Attempt to run disabled command " + feedback.CommandType, methodNamesFromStack);
                 } break;
                 default: {
                     handled = false;

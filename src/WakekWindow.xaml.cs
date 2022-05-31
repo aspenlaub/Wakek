@@ -35,7 +35,8 @@ public partial class WakekWindow {
         UiSynchronizationContext = SynchronizationContext.Current;
         WakekApplication = new WakekApplication(Controller, Controller, UiSynchronizationContext, NavigateToStringReturnContentAsNumber,
             container.Resolve<ISecretRepository>(), container.Resolve<IXmlSerializedObjectReader>(), container.Resolve<IBenchmarkExecutionFactory>(),
-            container.Resolve<IXmlSerializer>(), container.Resolve<ITelemetryDataReader>(), container.Resolve<IHttpClientFactory>(), simpleLogger);
+            container.Resolve<IXmlSerializer>(), container.Resolve<ITelemetryDataReader>(), container.Resolve<IHttpClientFactory>(), simpleLogger,
+            container.Resolve<IMethodNamesFromStackFramesExtractor>());
 
         InitializeComponent();
     }

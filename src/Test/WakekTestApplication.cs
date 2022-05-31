@@ -35,7 +35,8 @@ public class WakekTestApplication : IWakekApplication {
         ApplicationCommandController = new ApplicationCommandController(simpleLogger, HandleFeedbackToApplicationAsync);
         WrappedWakekApplication = new WakekApplication(ApplicationCommandController, ApplicationCommandController, SynchronizationContext.Current, NavigateToStringReturnContentAsNumberAsync,
             container.Resolve<ISecretRepository>(), container.Resolve<IXmlSerializedObjectReader>(), container.Resolve<IBenchmarkExecutionFactory>(),
-            container.Resolve<IXmlSerializer>(), telemetryDataReaderMock.Object, httpClientFactory, simpleLogger);
+            container.Resolve<IXmlSerializer>(), telemetryDataReaderMock.Object, httpClientFactory, simpleLogger,
+            container.Resolve<IMethodNamesFromStackFramesExtractor>());
     }
 
     public bool IsExecuting() { return WrappedWakekApplication.IsExecuting(); }
