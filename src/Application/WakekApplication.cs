@@ -53,7 +53,7 @@ public class WakekApplication : IWakekApplication {
     }
 
     public async Task SetBenchmarkDefinitionsAsync() {
-        using (SimpleLogger.BeginScope(SimpleLoggingScopeId.Create(nameof(SetBenchmarkDefinitionsAsync), SimpleLogger.LogId))) {
+        using (SimpleLogger.BeginScope(SimpleLoggingScopeId.Create(nameof(SetBenchmarkDefinitionsAsync)))) {
             var secret = new SecretBenchmarkDefinitions();
             var errorsAndInfos = new ErrorsAndInfos();
             BenchmarkDefinitions = await SecretRepository.GetAsync(secret, errorsAndInfos);
@@ -120,7 +120,7 @@ public class WakekApplication : IWakekApplication {
     }
 
     public async Task<bool> HandleFeedbackToApplicationReturnSuccessAsync(IFeedbackToApplication feedback) {
-        using (SimpleLogger.BeginScope(SimpleLoggingScopeId.Create(nameof(HandleFeedbackToApplicationAsync), SimpleLogger.LogId))) {
+        using (SimpleLogger.BeginScope(SimpleLoggingScopeId.Create(nameof(HandleFeedbackToApplicationAsync)))) {
             var methodNamesFromStack = MethodNamesFromStackFramesExtractor.ExtractMethodNamesFromStackFrames();
             var handled = true;
             switch (feedback.Type) {
