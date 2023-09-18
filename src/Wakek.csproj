@@ -40,7 +40,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CsvHelper" Version="30.0.0" />
-    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.1901.177" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.1938.49" />
     <PackageReference Include="Vishizhukel" Version="2.0.1480.386" />
   </ItemGroup>
   <ItemGroup>
