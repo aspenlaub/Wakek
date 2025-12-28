@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Test/Wakek.Test.csproj" />
+  <Project Path="Wakek.csproj" />
+</Solution>
