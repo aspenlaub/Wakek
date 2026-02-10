@@ -13,7 +13,7 @@ public class BenchmarkDefinitionTest {
     [TestMethod]
     public async Task HaveBenchmarkDefinitionsSecret() {
         var secret = new SecretBenchmarkDefinitions();
-        var container = new ContainerBuilder().UsePegh("Wakek", new DummyCsArgumentPrompter()).Build();
+        IContainer container = new ContainerBuilder().UsePegh("Wakek").Build();
         var errorsAndInfos = new ErrorsAndInfos();
         await container.Resolve<ISecretRepository>().GetAsync(secret, errorsAndInfos);
         Assert.IsFalse(errorsAndInfos.AnyErrors(), string.Join("\r\n", errorsAndInfos.Errors));
@@ -22,10 +22,10 @@ public class BenchmarkDefinitionTest {
     [TestMethod]
     public void ThereIsADefaultBenchmarkDefinitionListThatCanBeCloned() {
         var secret = new SecretBenchmarkDefinitions();
-        var definitions = secret.DefaultValue;
+        BenchmarkDefinitions definitions = secret.DefaultValue;
         Assert.IsTrue(definitions.Count != 0);
 
-        var clone = definitions.Clone();
+        BenchmarkDefinitions clone = definitions.Clone();
         Assert.AreEqual(definitions.Count, clone.Count);
         Assert.AreEqual(definitions[0].Guid, clone[0].Guid);
         Assert.AreEqual(definitions[0].BenchmarkExecutionType, clone[0].BenchmarkExecutionType);

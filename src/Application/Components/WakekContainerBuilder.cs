@@ -7,7 +7,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Wakek.Application.Components;
 
 public static class WakekContainerBuilder {
     public static ContainerBuilder UseWakek(this ContainerBuilder builder) {
-        builder.UsePegh("Wakek", new DummyCsArgumentPrompter());
+        builder.UsePegh("Wakek");
         builder.RegisterType<BenchmarkExecutionFactory>().As<IBenchmarkExecutionFactory>();
         builder.RegisterType<HttpClientFactory>().As<IHttpClientFactory>();
         builder.RegisterType<SequenceNumberGenerator>().As<ISequenceNumberGenerator>();
