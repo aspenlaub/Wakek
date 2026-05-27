@@ -2,6 +2,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net10.0-windows</TargetFramework>
+    <RestoreEnablePackagePruning>false</RestoreEnablePackagePruning>
+    <AssetTargetFallback>net10.0</AssetTargetFallback>
     <UseWPF>true</UseWPF>
     <IsPackable>false</IsPackable>
     <AssemblyName>Aspenlaub.Net.GitHub.CSharp.Wakek.Test</AssemblyName>
