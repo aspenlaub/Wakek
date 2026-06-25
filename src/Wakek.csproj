@@ -21,6 +21,7 @@
     <RepositoryUrl>https://github.com/aspenlaub/Wakek.git</RepositoryUrl>
     <RepositoryBranch>master</RepositoryBranch>
     <PackageId>Wakek</PackageId>
+    <MSBuildEnableWorkloadResolver>false</MSBuildEnableWorkloadResolver>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
